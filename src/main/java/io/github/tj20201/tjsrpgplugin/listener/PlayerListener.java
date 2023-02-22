@@ -29,14 +29,8 @@ public class PlayerListener implements Listener {
         plugin.fixPlayerDataNullValues(event.getPlayer());
         new BukkitRunnable() {
 
-            int tickCount = 0;
             @Override
             public void run() {
-                tickCount += 1;
-                if (tickCount == 6) { // Every 1.5 seconds
-                    tickCount = 0;
-                    plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "mana"), PersistentDataType.INTEGER, plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "mana"), PersistentDataType.INTEGER)+(60/plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana"), PersistentDataType.INTEGER)));
-                }
                 if (!event.getPlayer().isOnline()) cancel();
                 event.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(Objects.requireNonNull(config.getString("actionBarFormat"))
                         .replace("{mana}", plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "mana"), PersistentDataType.INTEGER)+"/"+plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana"), PersistentDataType.INTEGER))
