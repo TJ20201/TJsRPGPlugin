@@ -9,4 +9,4 @@ When contributing to the documentation of **TJ's RPG Plugin**, follow along the 
 
 ## Reviewers
 This section contains people who are trusted to approve any contributing Issue and Pull Request. <br>
-<code><img src="https://avatars.githubusercontent.com/u/86313252?v=4" width=24 height=24 style="border-radius:32px"> [TJ20201 (TJ)](https://github.com/TJ20201)</code>
+<code><img src="https://avatars.githubusercontent.com/u/86313252?v=4" width=24 height=24> [TJ20201 (TJ)](https://github.com/TJ20201)</code>
