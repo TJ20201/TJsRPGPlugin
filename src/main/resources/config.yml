@@ -1,15 +1,33 @@
 # The startingValues values alter the starting and maximum count for the selected value.
 startingValues:
-  health: 20 # Default: 20
-  mana: 25 # Default: 25
+  health: 20
+  mana: 25
 
 # The maximumValues values alter the maximum upgraded amount of specific values. All the values
-# here are upgraded automatically via levelling up. To limit the maximum level, see levelLimit
+# here are upgraded automatically via levelling up. To limit the maximum level, see levelLimit.
+# Levelling upgrade works by changing these amounts based on levelLimit, or 5 if there is no limit
 maximumValues:
-  health: 100 # Default: 100 (5 rows)
-  mana: 200 # Default: 200
+  health: 100
+  mana: 200
 
 # levelLimit specifies the maximum level you can reach. This does not interfere with the
 # vanilla level XP system which is used mainly for enchants but runs alongside it. Set to 0
 # for no limit.
-levelLimit: 0 # Default: 0 (no limit)
+levelLimit: 0
+
+# Player event messages can be defined here. Set to "none" if you do not want these messages
+# or have another plugin (e.g. EssentialsX) handling them.
+# joinMessage - Message to send on join. | quitMessage - Message to send on quit.
+# talkMessage - Message to send on talk. | Not added yet
+# PLACEHOLDERS:
+# {player} - The player, usable in all events | {message} - The message sent, only for talkMessage
+joinMessage: "&b{player} &7has joined."
+quitMessage: "&b{player} &7has left."
+talkMessage: "&8[&7{player}&8]: &f{message}"
+
+
+# The actionBarFormat specifies how the action bar with information should render. This is
+# an essential part of this plugin, as it handles display of the main features of this plugin.
+# Use {mana} for mana (rendered: cc/mm) and {level} for level (rendered: cc)
+# cc - current | mm - maximum
+actionBarFormat: "&bMana: &3{mana} &7| &aLevel: &2{level}"
