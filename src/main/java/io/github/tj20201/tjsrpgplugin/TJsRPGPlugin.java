@@ -5,14 +5,14 @@ import io.github.tj20201.tjsrpgplugin.listener.PlayerListener;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import java.util.Objects;
 
 public final class TJsRPGPlugin extends JavaPlugin {
@@ -22,14 +22,15 @@ public final class TJsRPGPlugin extends JavaPlugin {
 
     public String prefix = ChatColor.translateAlternateColorCodes('&', "&b[&9TJsRPGPlugin&b] &7");
 
-    public Class[] listeners = {PlayerListener.class, EntityListener.class};
+    public List<Listener> listeners = List.of(new EntityListener(), new PlayerListener());
     @Override
     public void onEnable() {
         this.saveDefaultConfig();
-        for (Class listener : listeners) {
+        for (Listener listener : listeners) {
             try {
-                getServer().getPluginManager().registerEvents((Listener) listener.newInstance(), this);
-            } catch (InstantiationException | IllegalAccessException e) {
+                getServer().getPluginManager().registerEvents(listener.getClass().getDeclaredConstructor().newInstance(), this);
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                     NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -40,11 +41,13 @@ public final class TJsRPGPlugin extends JavaPlugin {
         // Plugin shutdown logic
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public String getPlayerData(Player player, NamespacedKey key, PersistentDataType type) {
         Object data = player.getPersistentDataContainer().get(key, type);
         if (data != null) return data.toString();
         return "Null";
     }
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public void setPlayerData(Player player, NamespacedKey key, PersistentDataType type, Object value) {
         player.getPersistentDataContainer().set(key, type, value);
     }
@@ -61,9 +64,7 @@ public final class TJsRPGPlugin extends JavaPlugin {
 
     public boolean checkItemIsEXPOrb(Item item) {
         if (Objects.equals(Objects.requireNonNull(item.getItemStack().getItemMeta()).getDisplayName(), EXPOrbName)) {
-            if (Objects.equals(item.getItemStack().getType(), EXPOrbMaterial)) {
-                return true;
-            } else {return false;}
+            return Objects.equals(item.getItemStack().getType(), EXPOrbMaterial);
         } else {return false;}
     }
 }
