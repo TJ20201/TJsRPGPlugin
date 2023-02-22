@@ -18,7 +18,7 @@ public class EntityListener implements Listener {
             ItemMeta meta = EXPOrb.getItemMeta();
             assert meta != null;
             meta.setDisplayName(JavaPlugin.getPlugin(TJsRPGPlugin.class).EXPOrbName);
-            meta.setLore(List.of(String.valueOf(event.getDroppedExp()), UUID.randomUUID().toString().replaceAll("-", "")));
+            meta.setLore(List.of(String.valueOf(event.getDroppedExp())));
             EXPOrb.setItemMeta(meta);
             event.getEntity().getWorld().dropItem(event.getEntity().getLocation(), EXPOrb);
         }

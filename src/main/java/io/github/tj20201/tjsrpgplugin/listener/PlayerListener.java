@@ -34,14 +34,14 @@ public class PlayerListener implements Listener {
                         .replace("{mana}", JavaPlugin.getPlugin(TJsRPGPlugin.class).getPlayerData(event.getPlayer(), new NamespacedKey(JavaPlugin.getPlugin(TJsRPGPlugin.class), "mana"), PersistentDataType.INTEGER)+"/"+JavaPlugin.getPlugin(TJsRPGPlugin.class).getPlayerData(event.getPlayer(), new NamespacedKey(JavaPlugin.getPlugin(TJsRPGPlugin.class), "maxMana"), PersistentDataType.INTEGER))
                         .replace("{level}", JavaPlugin.getPlugin(TJsRPGPlugin.class).getPlayerData(event.getPlayer(), new NamespacedKey(JavaPlugin.getPlugin(TJsRPGPlugin.class), "level"), PersistentDataType.INTEGER)+" ("+JavaPlugin.getPlugin(TJsRPGPlugin.class).getPlayerData(event.getPlayer(), new NamespacedKey(JavaPlugin.getPlugin(TJsRPGPlugin.class), "curEXP"), PersistentDataType.INTEGER)+"/"+JavaPlugin.getPlugin(TJsRPGPlugin.class).getPlayerData(event.getPlayer(), new NamespacedKey(JavaPlugin.getPlugin(TJsRPGPlugin.class), "totEXP"), PersistentDataType.INTEGER)+")")
                         ))));
-                if (Integer.parseInt(JavaPlugin.getPlugin(TJsRPGPlugin.class).getPlayerData(event.getPlayer(), new NamespacedKey(JavaPlugin.getPlugin(TJsRPGPlugin.class), "curEXP"), PersistentDataType.INTEGER)) >= Integer.parseInt(JavaPlugin.getPlugin(TJsRPGPlugin.class).getPlayerData(event.getPlayer(), new NamespacedKey(JavaPlugin.getPlugin(TJsRPGPlugin.class), "totEXP"), PersistentDataType.INTEGER))) {
-                    int newLevel = Integer.parseInt(JavaPlugin.getPlugin(TJsRPGPlugin.class).getPlayerData(event.getPlayer(), new NamespacedKey(JavaPlugin.getPlugin(TJsRPGPlugin.class), "level"), PersistentDataType.INTEGER))+1;
+                if (JavaPlugin.getPlugin(TJsRPGPlugin.class).getPlayerData(event.getPlayer(), new NamespacedKey(JavaPlugin.getPlugin(TJsRPGPlugin.class), "curEXP"), PersistentDataType.INTEGER) >= JavaPlugin.getPlugin(TJsRPGPlugin.class).getPlayerData(event.getPlayer(), new NamespacedKey(JavaPlugin.getPlugin(TJsRPGPlugin.class), "totEXP"), PersistentDataType.INTEGER)) {
+                    int newLevel = JavaPlugin.getPlugin(TJsRPGPlugin.class).getPlayerData(event.getPlayer(), new NamespacedKey(JavaPlugin.getPlugin(TJsRPGPlugin.class), "level"), PersistentDataType.INTEGER)+1;
                     JavaPlugin.getPlugin(TJsRPGPlugin.class).setPlayerData(event.getPlayer(), new NamespacedKey(JavaPlugin.getPlugin(TJsRPGPlugin.class), "level"), PersistentDataType.INTEGER, newLevel);
                     event.getPlayer().spigot().sendMessage(ChatMessageType.CHAT, new TextComponent(JavaPlugin.getPlugin(TJsRPGPlugin.class).prefix+"You levelled up to level "+newLevel));
-                    int oldRequiredEXP = Integer.parseInt(JavaPlugin.getPlugin(TJsRPGPlugin.class).getPlayerData(event.getPlayer(), new NamespacedKey(JavaPlugin.getPlugin(TJsRPGPlugin.class), "totEXP"), PersistentDataType.INTEGER));
-                    JavaPlugin.getPlugin(TJsRPGPlugin.class).setPlayerData(event.getPlayer(), new NamespacedKey(JavaPlugin.getPlugin(TJsRPGPlugin.class), "curEXP"), PersistentDataType.INTEGER, Integer.parseInt(JavaPlugin.getPlugin(TJsRPGPlugin.class).getPlayerData(event.getPlayer(), new NamespacedKey(JavaPlugin.getPlugin(TJsRPGPlugin.class), "curEXP"), PersistentDataType.INTEGER))-oldRequiredEXP);
+                    int oldRequiredEXP = JavaPlugin.getPlugin(TJsRPGPlugin.class).getPlayerData(event.getPlayer(), new NamespacedKey(JavaPlugin.getPlugin(TJsRPGPlugin.class), "totEXP"), PersistentDataType.INTEGER);
+                    JavaPlugin.getPlugin(TJsRPGPlugin.class).setPlayerData(event.getPlayer(), new NamespacedKey(JavaPlugin.getPlugin(TJsRPGPlugin.class), "curEXP"), PersistentDataType.INTEGER, JavaPlugin.getPlugin(TJsRPGPlugin.class).getPlayerData(event.getPlayer(), new NamespacedKey(JavaPlugin.getPlugin(TJsRPGPlugin.class), "curEXP"), PersistentDataType.INTEGER)-oldRequiredEXP);
                     JavaPlugin.getPlugin(TJsRPGPlugin.class).setPlayerData(event.getPlayer(), new NamespacedKey(JavaPlugin.getPlugin(TJsRPGPlugin.class), "totEXP"), PersistentDataType.INTEGER, 100+(15*newLevel));
-
+                    JavaPlugin.getPlugin(TJsRPGPlugin.class).setPlayerData(event.getPlayer(), new NamespacedKey(JavaPlugin.getPlugin(TJsRPGPlugin.class), "maxMana"), PersistentDataType.INTEGER, JavaPlugin.getPlugin(TJsRPGPlugin.class).getPlayerData(event.getPlayer(), new NamespacedKey(JavaPlugin.getPlugin(TJsRPGPlugin.class), "maxMana"), PersistentDataType.INTEGER)+(15*newLevel));
                 }
             }
         }.runTaskTimerAsynchronously(JavaPlugin.getPlugin(TJsRPGPlugin.class), 5L, 5L);
@@ -55,7 +55,7 @@ public class PlayerListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerTalk(AsyncPlayerChatEvent event) {
+    public void onPlayerChat(AsyncPlayerChatEvent event) {
         FileConfiguration config = JavaPlugin.getPlugin(TJsRPGPlugin.class).getConfig();
         if (!Objects.equals(config.getString("talkMessage"), "none")) {
             event.setFormat(ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(config.getString("talkMessage")).replace("{player}", event.getPlayer().getName()).replace("{message}", event.getMessage())));
@@ -63,15 +63,15 @@ public class PlayerListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerPickupEXPItem(EntityPickupItemEvent event) {
+    public void onPlayerPickupItem(EntityPickupItemEvent event) {
         if (event.getEntity().getType() == EntityType.PLAYER) {
             Player player = JavaPlugin.getPlugin(TJsRPGPlugin.class).getServer().getPlayer(event.getEntity().getName());
             if (JavaPlugin.getPlugin(TJsRPGPlugin.class).checkItemIsEXPOrb(event.getItem())) {
-                int amountEXPToGive = Integer.parseInt(Objects.requireNonNull(Objects.requireNonNull(event.getItem().getItemStack().getItemMeta()).getLore()).get(0));
+                int amountEXPToGive = Integer.parseInt(Objects.requireNonNull(Objects.requireNonNull(event.getItem().getItemStack().getItemMeta()).getLore()).get(0))*event.getItem().getItemStack().getAmount();
                 event.setCancelled(true);
                 event.getItem().remove();
                 assert player != null;
-                JavaPlugin.getPlugin(TJsRPGPlugin.class).setPlayerData(player, new NamespacedKey(JavaPlugin.getPlugin(TJsRPGPlugin.class), "curEXP"), PersistentDataType.INTEGER, Integer.parseInt(JavaPlugin.getPlugin(TJsRPGPlugin.class).getPlayerData(player, new NamespacedKey(JavaPlugin.getPlugin(TJsRPGPlugin.class), "curEXP"), PersistentDataType.INTEGER))+amountEXPToGive);
+                JavaPlugin.getPlugin(TJsRPGPlugin.class).setPlayerData(player, new NamespacedKey(JavaPlugin.getPlugin(TJsRPGPlugin.class), "curEXP"), PersistentDataType.INTEGER, JavaPlugin.getPlugin(TJsRPGPlugin.class).getPlayerData(player, new NamespacedKey(JavaPlugin.getPlugin(TJsRPGPlugin.class), "curEXP"), PersistentDataType.INTEGER)+amountEXPToGive);
                 player.spigot().sendMessage(ChatMessageType.CHAT, new TextComponent(JavaPlugin.getPlugin(TJsRPGPlugin.class).prefix+"You picked up "+amountEXPToGive+" experience!"));
             }
         }
