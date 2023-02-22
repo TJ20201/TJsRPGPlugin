@@ -25,7 +25,6 @@ joinMessage: "&b{player} &7has joined."
 quitMessage: "&b{player} &7has left."
 talkMessage: "&8[&7{player}&8]: &f{message}"
 
-
 # The actionBarFormat specifies how the action bar with information should render. This is
 # an essential part of this plugin, as it handles display of the main features of this plugin.
 # Use {mana} for mana (rendered: cc/mm) and {level} for level (rendered: cc)
