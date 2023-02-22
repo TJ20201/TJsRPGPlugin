@@ -1,0 +1,15 @@
+# The startingValues values alter the starting and maximum count for the selected value.
+startingValues:
+  health: 20 # Default: 20
+  mana: 25 # Default: 25
+
+# The maximumValues values alter the maximum upgraded amount of specific values. All the values
+# here are upgraded automatically via levelling up. To limit the maximum level, see levelLimit
+maximumValues:
+  health: 100 # Default: 100 (5 rows)
+  mana: 200 # Default: 200
+
+# levelLimit specifies the maximum level you can reach. This does not interfere with the
+# vanilla level XP system which is used mainly for enchants but runs alongside it. Set to 0
+# for no limit.
+levelLimit: 0 # Default: 0 (no limit)

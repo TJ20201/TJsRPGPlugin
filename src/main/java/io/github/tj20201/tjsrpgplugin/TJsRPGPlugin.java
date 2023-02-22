@@ -6,8 +6,7 @@ public final class TJsRPGPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        // Plugin startup logic
-
+        this.saveDefaultConfig();
     }
 
     @Override
