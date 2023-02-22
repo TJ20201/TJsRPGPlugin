@@ -8,12 +8,13 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public final class TJsRPGPlugin extends JavaPlugin {
 
@@ -66,5 +67,28 @@ public final class TJsRPGPlugin extends JavaPlugin {
         if (Objects.equals(Objects.requireNonNull(item.getItemStack().getItemMeta()).getDisplayName(), EXPOrbName)) {
             return Objects.equals(item.getItemStack().getType(), EXPOrbMaterial);
         } else {return false;}
+    }
+
+    public ItemStack[] getCustomItems() {
+        String[] ItemNames = {"Mana Potion"};
+        Material[] ItemMaterials = {Material.POTION};
+        String[][] ItemModifiers = {{"Small", "Normal", "Large"}};
+        String[][] ItemDescriptions = {{"&fRestores Mana"}};
+        int Iteration = 0;
+        ItemStack[] Items = {};
+        for (String ItemName : ItemNames) {
+            ItemStack Item = new ItemStack(ItemMaterials[Iteration]);
+            ItemMeta ItemMeta = Item.getItemMeta();
+            assert ItemMeta != null;
+            ItemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&f"+ItemModifiers[Iteration][new Random().nextInt(ItemModifiers[Iteration].length-1)] +ItemName));
+            ItemMeta.setLore(Arrays.asList(ItemDescriptions[Iteration]));
+            Item.setItemMeta(ItemMeta);
+            Item.setAmount(1);
+            ArrayList<ItemStack> ALItems = new ArrayList<>(Arrays.asList(Items));
+            ALItems.add(Item);
+            Items = ALItems.toArray(Items);
+            Iteration += 1;
+        }
+        return Items;
     }
 }
