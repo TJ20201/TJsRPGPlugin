@@ -5,5 +5,5 @@
 **TJ's RPG Plugin** allows anybody to contribute. For more information on contributing to this repository, see the [Contributing Guide](CONTRIBUTING.md).
 
 ## License
-**TJ's RPG Plugin** is licensed under the [CC BY-NC-SA 4.0 International](LICENSE.md) license which can be seen at [the official Creative Commons page](https://creativecommons.org/licenses/by-nc-sa/4.0/) or by going to the [LICENSE.md](LICENSE.md) file.
+**TJ's RPG Plugin** is licensed under the [CC BY-NC-SA 4.0 International](LICENSE.md) license which can be seen at [the official Creative Commons page](https://creativecommons.org/licenses/by-nc-sa/4.0/) or by going to the [LICENSE.md](LICENSE.md) file.<br>
 ![CC BY-NC-SA 4.0 Internation License Image](https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png)
