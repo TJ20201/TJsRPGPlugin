@@ -16,6 +16,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.List;
 import java.util.Objects;
 
 public class PlayerListener implements Listener {
@@ -84,6 +85,20 @@ public class PlayerListener implements Listener {
                 plugin.setPlayerData(player, new NamespacedKey(plugin, "curEXP"), PersistentDataType.INTEGER, plugin.getPlayerData(player, new NamespacedKey(plugin, "curEXP"), PersistentDataType.INTEGER)+amountEXPToGive);
                 player.spigot().sendMessage(ChatMessageType.CHAT, new TextComponent(plugin.prefix+"You picked up "+amountEXPToGive+" experience!"));
             }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerConsumeItem(PlayerItemConsumeEvent event) {
+        TJsRPGPlugin plugin = JavaPlugin.getPlugin(TJsRPGPlugin.class);
+        NamespacedKey keyMana = new NamespacedKey(plugin, "mana");
+        String itemName = Objects.requireNonNull(event.getItem().getItemMeta()).getDisplayName();
+        List<String> itemLore = Objects.requireNonNull(event.getItem().getItemMeta().getLore());
+        if (itemName.endsWith("Mana Potion") && itemLore.get(0).endsWith("Restores Mana")) {
+            if (itemName.contains("Small")) {plugin.setPlayerData(event.getPlayer(), keyMana, PersistentDataType.INTEGER, plugin.getPlayerData(event.getPlayer(), keyMana, PersistentDataType.INTEGER)+10);}
+            if (itemName.contains("Normal")) {plugin.setPlayerData(event.getPlayer(), keyMana, PersistentDataType.INTEGER, plugin.getPlayerData(event.getPlayer(), keyMana, PersistentDataType.INTEGER)+25);}
+            if (itemName.contains("Large")) {plugin.setPlayerData(event.getPlayer(), keyMana, PersistentDataType.INTEGER, plugin.getPlayerData(event.getPlayer(), keyMana, PersistentDataType.INTEGER)+50);}
+            event.getItem().setAmount(event.getItem().getAmount()-1);
         }
     }
 }

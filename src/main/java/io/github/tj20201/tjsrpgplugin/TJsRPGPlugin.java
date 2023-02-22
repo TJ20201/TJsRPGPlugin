@@ -8,6 +8,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -71,17 +72,21 @@ public final class TJsRPGPlugin extends JavaPlugin {
 
     public ItemStack[] getCustomItems() {
         String[] ItemNames = {"Mana Potion"};
+        String[] ItemColours = {"&e"};
         Material[] ItemMaterials = {Material.POTION};
         String[][] ItemModifiers = {{"Small", "Normal", "Large"}};
-        String[][] ItemDescriptions = {{"&fRestores Mana"}};
+        String[][] ItemDescriptions = {{"&7Restores Mana", "&7", "&7Small: 10 Mana", "&7Normal: 25 Mana", "&7Large: 50 Mana"}};
         int Iteration = 0;
         ItemStack[] Items = {};
         for (String ItemName : ItemNames) {
             ItemStack Item = new ItemStack(ItemMaterials[Iteration]);
             ItemMeta ItemMeta = Item.getItemMeta();
             assert ItemMeta != null;
-            ItemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&f"+ItemModifiers[Iteration][new Random().nextInt(ItemModifiers[Iteration].length-1)] +ItemName));
-            ItemMeta.setLore(Arrays.asList(ItemDescriptions[Iteration]));
+            ItemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&f"+ItemColours[Iteration]+ItemModifiers[Iteration][new Random().nextInt(ItemModifiers[Iteration].length-1)]+" "+ItemName));
+            ArrayList<String> ColouredLore = new ArrayList<>();
+            for (String LoreEntry : ItemDescriptions[Iteration]) {ColouredLore.add(ChatColor.translateAlternateColorCodes('&', LoreEntry));}
+            ItemMeta.setLore(ColouredLore);
+            ItemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
             Item.setItemMeta(ItemMeta);
             Item.setAmount(1);
             ArrayList<ItemStack> ALItems = new ArrayList<>(Arrays.asList(Items));
