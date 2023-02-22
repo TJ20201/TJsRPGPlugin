@@ -1,0 +1,9 @@
+name: TJsRPGPlugin
+version: '${version}'
+main: io.github.tj20201.tjsrpgplugin.TJsRPGPlugin
+api-version: 1.19
+prefix: tjsrpgplugin
+load: STARTUP
+authors: [ TJ20201 ]
+description: An RPG plugin for Minecraft made by TJ20201.
+website: https://github.com/TJ20201/TJsRPGPlugin
