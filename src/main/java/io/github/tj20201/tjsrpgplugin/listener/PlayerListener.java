@@ -98,7 +98,6 @@ public class PlayerListener implements Listener {
             if (itemName.contains("Small")) {plugin.setPlayerData(event.getPlayer(), keyMana, PersistentDataType.INTEGER, plugin.getPlayerData(event.getPlayer(), keyMana, PersistentDataType.INTEGER)+10);}
             if (itemName.contains("Normal")) {plugin.setPlayerData(event.getPlayer(), keyMana, PersistentDataType.INTEGER, plugin.getPlayerData(event.getPlayer(), keyMana, PersistentDataType.INTEGER)+25);}
             if (itemName.contains("Large")) {plugin.setPlayerData(event.getPlayer(), keyMana, PersistentDataType.INTEGER, plugin.getPlayerData(event.getPlayer(), keyMana, PersistentDataType.INTEGER)+50);}
-            event.getItem().setAmount(event.getItem().getAmount()-1);
         }
     }
 }
