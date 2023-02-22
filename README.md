@@ -1,5 +1,5 @@
 # TJ's RPG Plugin
-**TJ's RPG Plugin** is a [SpigotMC](https://www.spigotmc.org/) plugin coded in [IntelliJ IDEA](https://www.jetbrains.com/idea/). It implements common RPG features such as Mana and a Levelling system whilst still being compatible with Vanilla Minecraft.
+**TJ's RPG Plugin** is a [SpigotMC](https://www.spigotmc.org/) plugin coded in Java using mainly the [IntelliJ IDEA](https://www.jetbrains.com/idea/) integrated development environment. It implements common RPG features such as Mana and a Levelling system whilst still being compatible with Vanilla Minecraft.
 
 ## Contribution
 **TJ's RPG Plugin** allows anybody to contribute. For more information on contributing to this repository, see the [Contributing Guide](CONTRIBUTING.md).
