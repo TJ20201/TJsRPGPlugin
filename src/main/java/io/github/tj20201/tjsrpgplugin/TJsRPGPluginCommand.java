@@ -43,6 +43,7 @@ public class TJsRPGPluginCommand implements CommandExecutor, TabCompleter {
                         int newLevel = Integer.parseInt(args[4]);
                         sender.sendMessage(plugin.prefix+ChatColor.translateAlternateColorCodes('&', "User &b" + target.getName() + "&7 has been changed from Level &b" + oldLevel + "&7 to Level &b" + newLevel + "&7."));
                         plugin.setPlayerData(target, keyLevel, newLevel);
+                        plugin.setPlayerData(target, new NamespacedKey(plugin, "curEXP"), 0);
                         plugin.updatePlayerData(target);
                         return true;
                     }
