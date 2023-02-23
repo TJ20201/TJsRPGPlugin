@@ -14,11 +14,14 @@ maximumValues:
 # vanilla level XP system which is used mainly for enchants but runs alongside it. Set to 0
 # for no limit.
 levelLimit: 0
+# levelStart specifies the starting level. Make sure this is below levelLimit if you have set
+# it to something other than 0. This must be above 0 otherwise the plugin may not work properly.
+levelStart: 0
 
 # Player event messages can be defined here. Set to "none" if you do not want these messages
 # or have another plugin (e.g. EssentialsX) handling them.
 # joinMessage - Message to send on join. | quitMessage - Message to send on quit.
-# talkMessage - Message to send on talk. | Not added yet
+# talkMessage - Message to send on talk. | TBA
 # PLACEHOLDERS:
 # {player} - The player, usable in all events | {message} - The message sent, only for talkMessage
 joinMessage: "&b{player} &7has joined."
