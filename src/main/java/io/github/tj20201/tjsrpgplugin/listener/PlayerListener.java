@@ -91,10 +91,11 @@ public class PlayerListener implements Listener {
         NamespacedKey keyMana = new NamespacedKey(plugin, "mana");
         String itemName = Objects.requireNonNull(event.getItem().getItemMeta()).getDisplayName();
         List<String> itemLore = Objects.requireNonNull(event.getItem().getItemMeta().getLore());
+        String colourYellow = ChatColor.translateAlternateColorCodes('&', "&e");
         if (itemName.endsWith("Mana Potion") && itemLore.get(0).endsWith("Restores Mana")) {
-            if (itemName.contains("Small")) {plugin.setPlayerData(event.getPlayer(), keyMana, plugin.getPlayerData(event.getPlayer(), keyMana)+10);}
-            if (itemName.contains("Normal")) {plugin.setPlayerData(event.getPlayer(), keyMana, plugin.getPlayerData(event.getPlayer(), keyMana)+25);}
-            if (itemName.contains("Large")) {plugin.setPlayerData(event.getPlayer(), keyMana, plugin.getPlayerData(event.getPlayer(), keyMana)+50);}
+            if (itemName.contains(colourYellow+"Small")) {plugin.setPlayerData(event.getPlayer(), keyMana, plugin.getPlayerData(event.getPlayer(), keyMana)+10);}
+            if (itemName.contains(colourYellow+"Normal")) {plugin.setPlayerData(event.getPlayer(), keyMana, plugin.getPlayerData(event.getPlayer(), keyMana)+25);}
+            if (itemName.contains(colourYellow+"Large")) {plugin.setPlayerData(event.getPlayer(), keyMana, plugin.getPlayerData(event.getPlayer(), keyMana)+50);}
         }
     }
 }
