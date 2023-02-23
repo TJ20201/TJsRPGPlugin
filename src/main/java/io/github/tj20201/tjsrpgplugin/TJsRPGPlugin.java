@@ -2,9 +2,7 @@ package io.github.tj20201.tjsrpgplugin;
 
 import io.github.tj20201.tjsrpgplugin.listener.EntityListener;
 import io.github.tj20201.tjsrpgplugin.listener.PlayerListener;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
+import org.bukkit.*;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -97,7 +95,7 @@ public final class TJsRPGPlugin extends JavaPlugin {
         }
         return Items;
     }
-    public ItemStack getRandomReward() {
+    public void dropRandomReward(Location location, World world) {
         Material[] Rewards = {Material.NETHER_STAR, Material.NETHERITE_SCRAP, Material.TOTEM_OF_UNDYING};
         int[] RewardMaxCounts = {2, 6, 1};
         int Index = new Random().nextInt(Rewards.length);
@@ -113,7 +111,7 @@ public final class TJsRPGPlugin extends JavaPlugin {
         assert ItemMeta != null;
         ItemMeta.setLore(List.of(ChatColor.translateAlternateColorCodes('&', "&7Received from TJ's RPG Plugin Level Milestones"), "", UUID.randomUUID().toString().replace("-", "")));
         Item.setItemMeta(ItemMeta);
-        return Item;
+        world.dropItem(location, Item);
     }
 
     public Player getPlayer(String match) {

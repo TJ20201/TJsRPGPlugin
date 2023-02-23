@@ -44,7 +44,7 @@ public class PlayerListener implements Listener {
                     plugin.updatePlayerData(event.getPlayer(), oldRequiredEXP);
                     if (newLevel % 50 == 0) {
                         plugin.getServer().broadcastMessage(plugin.prefix+ChatColor.translateAlternateColorCodes('&', "&eUser &6"+event.getPlayer().getName()+"&e has reached Level &6"+newLevel+"&e!"));
-                        event.getPlayer().getWorld().dropItem(event.getPlayer().getLocation(), plugin.getRandomReward());
+                        plugin.dropRandomReward(event.getPlayer().getLocation(), event.getPlayer().getWorld());
                     }
                 }
                 if (plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana")) > plugin.getConfig().getInt("maximumValues.mana")) {plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana"), plugin.getConfig().getInt("maximumValues.mana"));}
