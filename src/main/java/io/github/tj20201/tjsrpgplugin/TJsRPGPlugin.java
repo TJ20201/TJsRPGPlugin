@@ -98,8 +98,8 @@ public final class TJsRPGPlugin extends JavaPlugin {
         return Items;
     }
     public ItemStack getRandomReward() {
-        String[] Rewards = {"nether_star", "netherite_scrap", "heart_of_the_sea", "totem_of_undying"};
-        int[] RewardMaxCounts = {2, 6, 2, 1};
+        Material[] Rewards = {Material.NETHER_STAR, Material.NETHERITE_SCRAP, Material.TOTEM_OF_UNDYING};
+        int[] RewardMaxCounts = {2, 6, 1};
         int Index = new Random().nextInt(Rewards.length);
         int SRCount;
         if (RewardMaxCounts[Index] == 1) {
@@ -107,9 +107,7 @@ public final class TJsRPGPlugin extends JavaPlugin {
         } else {
             SRCount = new Random().nextInt(RewardMaxCounts[Index])+1;
         }
-        Material ItemMaterial = Material.getMaterial(Rewards[Index]);
-        assert ItemMaterial != null;
-        ItemStack Item = new ItemStack(ItemMaterial);
+        ItemStack Item = new ItemStack(Rewards[Index]);
         Item.setAmount(SRCount);
         ItemMeta ItemMeta = Item.getItemMeta();
         assert ItemMeta != null;
