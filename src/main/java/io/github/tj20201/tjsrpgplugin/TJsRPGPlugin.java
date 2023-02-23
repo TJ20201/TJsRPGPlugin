@@ -144,7 +144,7 @@ public final class TJsRPGPlugin extends JavaPlugin {
         Item.setAmount(SRCount);
         ItemMeta ItemMeta = Item.getItemMeta();
         assert ItemMeta != null;
-        ItemMeta.setLore(List.of(ChatColor.translateAlternateColorCodes('&', "&7Received from TJ's RPG Plugin Level Milestones"), "", UUID.randomUUID().toString().replace("-", "")));
+        ItemMeta.setLore(List.of(ChatColor.translateAlternateColorCodes('&', "&7Received from TJ's RPG Plugin Level Milestones")));
         Item.setItemMeta(ItemMeta);
         world.dropItem(location, Item);
     }
