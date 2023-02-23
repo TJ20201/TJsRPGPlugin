@@ -17,7 +17,7 @@ levelLimit: 0
 levelStart: 0
 # levelMilestoneRewards specifies whether reaching a level divisible by 50 will give you
 # a high reward or no reward at all. Some examples of the rewards given by this are: netherite
-# scrap, nether star, and a heart of the sea
+# scrap, nether star, and a totem of undying
 levelMilestoneRewards: true
 
 # Player event messages can be defined here. Set to "none" if you do not want these messages
