@@ -128,7 +128,6 @@ public final class TJsRPGPlugin extends JavaPlugin {
 
         this.setPlayerData(player, new NamespacedKey(this, "curEXP"), this.getPlayerData(player, new NamespacedKey(this, "curEXP"))-experienceToRemove);
         this.setPlayerData(player, new NamespacedKey(this, "totEXP"), 100+(15*this.getPlayerData(player, new NamespacedKey(this, "level"))));
-        this.setPlayerData(player, new NamespacedKey(this, "maxMana"), this.getPlayerData(player, new NamespacedKey(this, "maxMana"))+(15*this.getPlayerData(player, new NamespacedKey(this, "level"))));
         if (this.getPlayerData(player, new NamespacedKey(this, "mana")) > this.getPlayerData(player, new NamespacedKey(this, "maxMana"))) {this.setPlayerData(player, new NamespacedKey(this, "mana"), this.getPlayerData(player, new NamespacedKey(this, "maxMana")));}
         if (this.getPlayerData(player, new NamespacedKey(this, "mana")) < 0) {this.setPlayerData(player, new NamespacedKey(this, "mana"), 0);}
     }

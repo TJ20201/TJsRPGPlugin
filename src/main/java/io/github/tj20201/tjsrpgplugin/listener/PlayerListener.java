@@ -47,6 +47,7 @@ public class PlayerListener implements Listener {
                         plugin.dropRandomReward(event.getPlayer().getLocation(), event.getPlayer().getWorld());
                     }
                 }
+                plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana"), plugin.getConfig().getInt("startingValues.mana")+(15*plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "level"))));
                 if (plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana")) > plugin.getConfig().getInt("maximumValues.mana")) {plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana"), plugin.getConfig().getInt("maximumValues.mana"));}
                 if (plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "mana")) > plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana"))) {plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "mana"), plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana")));}
                 if (plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "level")) > plugin.getConfig().getInt("levelLimit") && plugin.getConfig().getInt("levelLimit") != 0) {plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "level"), plugin.getConfig().getInt("levelLimit"));}

@@ -4,7 +4,6 @@ startingValues:
 
 # The maximumValues values alter the maximum upgraded amount of specific values. All the values
 # here are upgraded automatically via levelling up. To limit the maximum level, see levelLimit.
-# Levelling upgrade works by changing these amounts based on levelLimit, or 5 if there is no limit.
 maximumValues:
   mana: 200
 
