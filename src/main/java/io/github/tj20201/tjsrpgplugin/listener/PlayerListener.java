@@ -51,7 +51,7 @@ public class PlayerListener implements Listener {
                 if (plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "mana")) > plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana"))) {plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "mana"), plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana")));}
                 if (plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "level")) > plugin.getConfig().getInt("levelLimit") && plugin.getConfig().getInt("levelLimit") != 0) {plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "level"), plugin.getConfig().getInt("levelLimit"));}
             }
-        }.runTaskTimerAsynchronously(plugin, 5L, 5L);
+        }.runTaskTimer(plugin, 5L, 5L);
     }
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
