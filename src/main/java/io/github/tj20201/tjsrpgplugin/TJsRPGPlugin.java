@@ -81,9 +81,11 @@ public final class TJsRPGPlugin extends JavaPlugin {
             ItemStack Item = new ItemStack(ItemMaterials[Iteration]);
             ItemMeta ItemMeta = Item.getItemMeta();
             assert ItemMeta != null;
-            ItemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&f"+ItemColours[Iteration]+ItemModifiers[Iteration][new Random().nextInt(ItemModifiers[Iteration].length)]+" "+ItemName));
+            ItemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&f" + ItemColours[Iteration] + ItemModifiers[Iteration][new Random().nextInt(ItemModifiers[Iteration].length)] + " " + ItemName));
             ArrayList<String> ColouredLore = new ArrayList<>();
-            for (String LoreEntry : ItemDescriptions[Iteration]) {ColouredLore.add(ChatColor.translateAlternateColorCodes('&', LoreEntry));}
+            for (String LoreEntry : ItemDescriptions[Iteration]) {
+                ColouredLore.add(ChatColor.translateAlternateColorCodes('&', LoreEntry));
+            }
             ItemMeta.setLore(ColouredLore);
             ItemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
             Item.setItemMeta(ItemMeta);
@@ -94,6 +96,26 @@ public final class TJsRPGPlugin extends JavaPlugin {
             Iteration += 1;
         }
         return Items;
+    }
+    public ItemStack getRandomReward() {
+        String[] Rewards = {"nether_star", "netherite_scrap", "heart_of_the_sea", "totem_of_undying"};
+        int[] RewardMaxCounts = {2, 6, 2, 1};
+        int Index = new Random().nextInt(Rewards.length);
+        int SRCount;
+        if (RewardMaxCounts[Index] == 1) {
+            SRCount = 1;
+        } else {
+            SRCount = new Random().nextInt(RewardMaxCounts[Index])+1;
+        }
+        Material ItemMaterial = Material.getMaterial(Rewards[Index]);
+        assert ItemMaterial != null;
+        ItemStack Item = new ItemStack(ItemMaterial);
+        Item.setAmount(SRCount);
+        ItemMeta ItemMeta = Item.getItemMeta();
+        assert ItemMeta != null;
+        ItemMeta.setLore(List.of(ChatColor.translateAlternateColorCodes('&', "&7Received from TJ's RPG Plugin Level Milestones"), "", UUID.randomUUID().toString().replace("-", "")));
+        Item.setItemMeta(ItemMeta);
+        return Item;
     }
 
     public Player getPlayer(String match) {

@@ -15,6 +15,10 @@ levelLimit: 0
 # levelStart specifies the starting level. Make sure this is below levelLimit if you have set
 # it to something other than 0. This must be above 0 otherwise the plugin may not work properly.
 levelStart: 0
+# levelMilestoneRewards specifies whether reaching a level divisible by 50 will give you
+# a high reward or no reward at all. Some examples of the rewards given by this are: netherite
+# scrap, nether star, and a heart of the sea
+levelMilestoneRewards: true
 
 # Player event messages can be defined here. Set to "none" if you do not want these messages
 # or have another plugin (e.g. EssentialsX) handling them.
