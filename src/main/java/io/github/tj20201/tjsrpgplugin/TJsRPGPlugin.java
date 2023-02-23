@@ -13,8 +13,13 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.StringUtil;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.util.*;
+import java.util.logging.Level;
 
 public final class TJsRPGPlugin extends JavaPlugin {
 
@@ -37,6 +42,36 @@ public final class TJsRPGPlugin extends JavaPlugin {
         }
         Objects.requireNonNull(this.getCommand("tjsrpgplugin")).setExecutor(new TJsRPGPluginCommand());
         Objects.requireNonNull(this.getCommand("tjsrpgplugin")).setTabCompleter(new TJsRPGPluginCommand());
+                String[] version = getDescription().getVersion().split("\\.");
+        try {
+           URL url = new URL("https://raw.githubusercontent.com/TJ20201/TJsRPGPlugin/master/build.gradle");
+           BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+           String inputLine;
+           String[] lstVersion = new String[0];
+           while ((inputLine = in.readLine()) != null) {
+               if (inputLine.startsWith("version = ")) {
+                   lstVersion = inputLine.split(" = ")[1].replace("'", "").split("\\.");
+                   break;
+               }
+           }
+           in.close();
+           assert lstVersion.length != 0;
+           // Lower version checking
+           if (Integer.parseInt(version[2]) < Integer.parseInt(lstVersion[2])) {
+               getLogger().log(Level.WARNING, "Running on a lower patch version than the latest stable release. Updating is not necessary, but recommended.");
+           } else if (Integer.parseInt(version[1]) < Integer.parseInt(lstVersion[1])) {
+               getLogger().log(Level.WARNING, "Running on a lower minor version than the latest stable release. Please update to the latest version at "+getDescription().getWebsite()+".");
+           } else if (Integer.parseInt(version[0]) < Integer.parseInt(lstVersion[0])) {
+               getLogger().log(Level.WARNING, "Running on a lower major version than the latest stable release. Please update to the latest version at "+getDescription().getWebsite()+".");
+           }
+           // Higher version checking
+           if (Integer.parseInt(version[2]) > Integer.parseInt(lstVersion[2]) || Integer.parseInt(version[1]) > Integer.parseInt(lstVersion[1]) || Integer.parseInt(version[0]) > Integer.parseInt(lstVersion[0])) {
+               getLogger().log(Level.WARNING, "Running on an unstable version of TJsRPGPlugin. Report any errors at "+getDescription().getWebsite()+" with your version number.");
+           }
+        }
+        catch(IOException ex) {
+           getLogger().log(Level.WARNING, "Unable to obtain the latest version number available online.");
+        }
     }
 
     @Override

@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'io.github.tj20201'
-version = '1.0.0'
+version = '1.1.0'
 
 repositories {
     mavenCentral()
@@ -43,7 +43,5 @@ processResources {
     def props = [version: version]
     inputs.properties props
     filteringCharset 'UTF-8'
-    filesMatching('plugin.yml') {
-        expand props
-    }
+    filesMatching('plugin.yml') {expand props}
 }
