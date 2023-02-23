@@ -12,7 +12,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.*;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -34,23 +33,21 @@ public class PlayerListener implements Listener {
             public void run() {
                 if (!event.getPlayer().isOnline()) cancel();
                 event.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(Objects.requireNonNull(config.getString("actionBarFormat"))
-                        .replace("{mana}", plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "mana"), PersistentDataType.INTEGER)+"/"+plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana"), PersistentDataType.INTEGER))
-                        .replace("{level}", plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "level"), PersistentDataType.INTEGER)+" ("+plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "curEXP"), PersistentDataType.INTEGER)+"/"+plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "totEXP"), PersistentDataType.INTEGER)+")")
+                        .replace("{mana}", plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "mana"))+"/"+plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana")))
+                        .replace("{level}", plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "level"))+" ("+plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "curEXP"))+"/"+plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "totEXP"))+")")
                         ))));
-                if (plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "curEXP"), PersistentDataType.INTEGER) >= plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "totEXP"), PersistentDataType.INTEGER)) {
-                    int newLevel = plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "level"), PersistentDataType.INTEGER)+1;
-                    plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "level"), PersistentDataType.INTEGER, newLevel);
+                if (plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "curEXP")) >= plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "totEXP"))) {
+                    int newLevel = plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "level"))+1;
+                    plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "level"), newLevel);
                     event.getPlayer().spigot().sendMessage(ChatMessageType.CHAT, new TextComponent(plugin.prefix+"You levelled up to level "+newLevel));
-                    int oldRequiredEXP = plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "totEXP"), PersistentDataType.INTEGER);
-                    plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "curEXP"), PersistentDataType.INTEGER, plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "curEXP"), PersistentDataType.INTEGER)-oldRequiredEXP);
-                    plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "totEXP"), PersistentDataType.INTEGER, 100+(15*newLevel));
-                    plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana"), PersistentDataType.INTEGER, plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana"), PersistentDataType.INTEGER)+(15*newLevel));
+                    int oldRequiredEXP = plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "totEXP"));
+                    plugin.updatePlayerData(event.getPlayer(), oldRequiredEXP);
                 }
-                if (plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana"), PersistentDataType.INTEGER) > plugin.getConfig().getInt("maximumValues.mana")) {plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana"), PersistentDataType.INTEGER, plugin.getConfig().getInt("maximumValues.mana"));}
-                if (plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "mana"), PersistentDataType.INTEGER) > plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana"), PersistentDataType.INTEGER)) {plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "mana"), PersistentDataType.INTEGER, plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana"), PersistentDataType.INTEGER));}
-                if (plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxHealth"), PersistentDataType.INTEGER) > plugin.getConfig().getInt("maximumValues.health")) {plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana"), PersistentDataType.INTEGER, plugin.getConfig().getInt("maximumValues.health"));}
-                if (plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "health"), PersistentDataType.INTEGER) > plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxHealth"), PersistentDataType.INTEGER)) {plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxHealth"), PersistentDataType.INTEGER, plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxHealth"), PersistentDataType.INTEGER));}
-                if (plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "level"), PersistentDataType.INTEGER) > plugin.getConfig().getInt("levelLimit") && plugin.getConfig().getInt("levelLimit") != 0) {plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "level"), PersistentDataType.INTEGER, plugin.getConfig().getInt("levelLimit"));}
+                if (plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana")) > plugin.getConfig().getInt("maximumValues.mana")) {plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana"), plugin.getConfig().getInt("maximumValues.mana"));}
+                if (plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "mana")) > plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana"))) {plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "mana"), plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana")));}
+                if (plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxHealth")) > plugin.getConfig().getInt("maximumValues.health")) {plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana"), plugin.getConfig().getInt("maximumValues.health"));}
+                if (plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "health")) > plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxHealth"))) {plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxHealth"), plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxHealth")));}
+                if (plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "level")) > plugin.getConfig().getInt("levelLimit") && plugin.getConfig().getInt("levelLimit") != 0) {plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "level"), plugin.getConfig().getInt("levelLimit"));}
             }
         }.runTaskTimerAsynchronously(plugin, 5L, 5L);
     }
@@ -82,7 +79,7 @@ public class PlayerListener implements Listener {
                 event.setCancelled(true);
                 event.getItem().remove();
                 assert player != null;
-                plugin.setPlayerData(player, new NamespacedKey(plugin, "curEXP"), PersistentDataType.INTEGER, plugin.getPlayerData(player, new NamespacedKey(plugin, "curEXP"), PersistentDataType.INTEGER)+amountEXPToGive);
+                plugin.setPlayerData(player, new NamespacedKey(plugin, "curEXP"), plugin.getPlayerData(player, new NamespacedKey(plugin, "curEXP"))+amountEXPToGive);
                 player.spigot().sendMessage(ChatMessageType.CHAT, new TextComponent(plugin.prefix+"You picked up "+amountEXPToGive+" experience!"));
             }
         }
@@ -95,9 +92,9 @@ public class PlayerListener implements Listener {
         String itemName = Objects.requireNonNull(event.getItem().getItemMeta()).getDisplayName();
         List<String> itemLore = Objects.requireNonNull(event.getItem().getItemMeta().getLore());
         if (itemName.endsWith("Mana Potion") && itemLore.get(0).endsWith("Restores Mana")) {
-            if (itemName.contains("Small")) {plugin.setPlayerData(event.getPlayer(), keyMana, PersistentDataType.INTEGER, plugin.getPlayerData(event.getPlayer(), keyMana, PersistentDataType.INTEGER)+10);}
-            if (itemName.contains("Normal")) {plugin.setPlayerData(event.getPlayer(), keyMana, PersistentDataType.INTEGER, plugin.getPlayerData(event.getPlayer(), keyMana, PersistentDataType.INTEGER)+25);}
-            if (itemName.contains("Large")) {plugin.setPlayerData(event.getPlayer(), keyMana, PersistentDataType.INTEGER, plugin.getPlayerData(event.getPlayer(), keyMana, PersistentDataType.INTEGER)+50);}
+            if (itemName.contains("Small")) {plugin.setPlayerData(event.getPlayer(), keyMana, plugin.getPlayerData(event.getPlayer(), keyMana)+10);}
+            if (itemName.contains("Normal")) {plugin.setPlayerData(event.getPlayer(), keyMana, plugin.getPlayerData(event.getPlayer(), keyMana)+25);}
+            if (itemName.contains("Large")) {plugin.setPlayerData(event.getPlayer(), keyMana, plugin.getPlayerData(event.getPlayer(), keyMana)+50);}
         }
     }
 }

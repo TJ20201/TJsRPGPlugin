@@ -7,3 +7,11 @@ load: STARTUP
 authors: [ TJ20201 ]
 description: An RPG plugin for Minecraft made by TJ20201.
 website: https://github.com/TJ20201/TJsRPGPlugin
+commands:
+  tjsrpgplugin:
+    aliases: [tjsrpg]
+    description: The main command for TJ's RPG Plugin
+permissions:
+  tjsrpgplugin.admin:
+    description: Anybody with this permission node can edit any player information related to TJ's RPG Plugin
+    default: op
