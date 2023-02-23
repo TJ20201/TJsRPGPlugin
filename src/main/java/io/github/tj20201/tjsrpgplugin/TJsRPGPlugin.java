@@ -3,17 +3,20 @@ package io.github.tj20201.tjsrpgplugin;
 import io.github.tj20201.tjsrpgplugin.listener.EntityListener;
 import io.github.tj20201.tjsrpgplugin.listener.PlayerListener;
 import org.bukkit.*;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.StringUtil;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
@@ -29,9 +32,14 @@ public final class TJsRPGPlugin extends JavaPlugin {
     public String prefix = ChatColor.translateAlternateColorCodes('&', "&b[&9TJsRPGPlugin&b] &7");
 
     public List<Listener> listeners = List.of(new EntityListener(), new PlayerListener());
+
+    private File playersDataFile;
+    private FileConfiguration playersData;
+
     @Override
     public void onEnable() {
         this.saveDefaultConfig();
+        createPlayersData();
         for (Listener listener : listeners) {
             try {
                 getServer().getPluginManager().registerEvents(listener.getClass().getDeclaredConstructor().newInstance(), this);
@@ -74,26 +82,55 @@ public final class TJsRPGPlugin extends JavaPlugin {
         }
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    private void createPlayersData() {
+        playersDataFile = new File(getDataFolder(), "players.yml");
+        if (!playersDataFile.exists()) {
+            playersDataFile.getParentFile().mkdirs();
+            saveResource("players.yml", false);
+        }
+        playersData = new YamlConfiguration();
+        try {
+            playersData.load(playersDataFile);
+        } catch (IOException | InvalidConfigurationException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void onDisable() {
         // Plugin shutdown logic
     }
 
-    public Integer getPlayerData(Player player, NamespacedKey key) {
-        String data = Objects.requireNonNull(player.getPersistentDataContainer().get(key, PersistentDataType.INTEGER)).toString();
-        return Integer.parseInt(data);
+    public FileConfiguration getPlayersData() {
+        return this.playersData;
     }
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public void setPlayerData(Player player, NamespacedKey key, Object value) {
-        player.getPersistentDataContainer().set(key, (PersistentDataType) PersistentDataType.INTEGER, value);
+
+    public void savePlayersData() {
+        try {
+            getPlayersData().save(playersDataFile);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public Integer getPlayerData(Player player, String key) {
+        int ret = getPlayersData().getInt(player.getUniqueId() +"."+key);
+        savePlayersData();
+        return ret;
+    }
+    public void setPlayerData(Player player, String key, Object value) {
+        getPlayersData().set(player.getUniqueId() +"."+key, value);
+        savePlayersData();
     }
 
     public void fixPlayerDataNullValues(Player player) {
-        if (Objects.equals(getPlayerData(player, new NamespacedKey(this, "level")), -1)) {setPlayerData(player, new NamespacedKey(this, "level"), getConfig().get("levelStart"));}
-        if (Objects.equals(getPlayerData(player, new NamespacedKey(this, "curEXP")), -1)) {setPlayerData(player, new NamespacedKey(this, "curEXP"), 0);}
-        if (Objects.equals(getPlayerData(player, new NamespacedKey(this, "totEXP")), -1)) {setPlayerData(player, new NamespacedKey(this, "totEXP"), 100);}
-        if (Objects.equals(getPlayerData(player, new NamespacedKey(this, "mana")), -1)) {setPlayerData(player, new NamespacedKey(this, "mana"), getConfig().get("startingValues.mana"));}
-        if (Objects.equals(getPlayerData(player, new NamespacedKey(this, "maxMana")), -1)) {setPlayerData(player, new NamespacedKey(this, "maxMana"), getConfig().get("startingValues.mana"));}
+        if (Objects.equals(getPlayerData(player, "level"), -1)) {setPlayerData(player, "level", getConfig().get("levelStart"));}
+        if (Objects.equals(getPlayerData(player, "curEXP"), -1)) {setPlayerData(player, "curEXP", 0);}
+        if (Objects.equals(getPlayerData(player, "totEXP"), -1)) {setPlayerData(player, "totEXP", 100);}
+        if (Objects.equals(getPlayerData(player, "mana"), -1)) {setPlayerData(player, "mana", getConfig().get("startingValues.mana"));}
+        if (Objects.equals(getPlayerData(player, "maxMana"), -1)) {setPlayerData(player, "maxMana", getConfig().get("startingValues.mana"));}
     }
 
     public boolean checkItemIsEXPOrb(Item item) {
@@ -161,9 +198,9 @@ public final class TJsRPGPlugin extends JavaPlugin {
     public void updatePlayerData(Player player) {updatePlayerData(player, 0);}
     public void updatePlayerData(Player player, Integer experienceToRemove) {
 
-        this.setPlayerData(player, new NamespacedKey(this, "curEXP"), this.getPlayerData(player, new NamespacedKey(this, "curEXP"))-experienceToRemove);
-        this.setPlayerData(player, new NamespacedKey(this, "totEXP"), 100+(15*this.getPlayerData(player, new NamespacedKey(this, "level"))));
-        if (this.getPlayerData(player, new NamespacedKey(this, "mana")) > this.getPlayerData(player, new NamespacedKey(this, "maxMana"))) {this.setPlayerData(player, new NamespacedKey(this, "mana"), this.getPlayerData(player, new NamespacedKey(this, "maxMana")));}
-        if (this.getPlayerData(player, new NamespacedKey(this, "mana")) < 0) {this.setPlayerData(player, new NamespacedKey(this, "mana"), 0);}
+        this.setPlayerData(player, "curEXP", this.getPlayerData(player, "curEXP")-experienceToRemove);
+        this.setPlayerData(player, "totEXP", 100+(15*this.getPlayerData(player, "level")));
+        if (this.getPlayerData(player, "mana") > this.getPlayerData(player, "maxMana")) {this.setPlayerData(player, "mana", this.getPlayerData(player, "maxMana"));}
+        if (this.getPlayerData(player, "mana") < 0) {this.setPlayerData(player, "mana", 0);}
     }
 }
