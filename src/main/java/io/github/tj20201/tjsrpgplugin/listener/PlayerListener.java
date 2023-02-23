@@ -43,14 +43,12 @@ public class PlayerListener implements Listener {
                     int oldRequiredEXP = plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "totEXP"));
                     plugin.updatePlayerData(event.getPlayer(), oldRequiredEXP);
                     if (newLevel % 50 == 0) {
-                        plugin.getServer().broadcastMessage(plugin.prefix+"&eUser &6"+event.getPlayer().getName()+"&e has reached Level &6"+newLevel+"&e!");
+                        plugin.getServer().broadcastMessage(plugin.prefix+ChatColor.translateAlternateColorCodes('&', "&eUser &6"+event.getPlayer().getName()+"&e has reached Level &6"+newLevel+"&e!"));
                         event.getPlayer().getWorld().dropItem(event.getPlayer().getLocation(), plugin.getRandomReward());
                     }
                 }
                 if (plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana")) > plugin.getConfig().getInt("maximumValues.mana")) {plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana"), plugin.getConfig().getInt("maximumValues.mana"));}
                 if (plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "mana")) > plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana"))) {plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "mana"), plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana")));}
-                if (plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxHealth")) > plugin.getConfig().getInt("maximumValues.health")) {plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana"), plugin.getConfig().getInt("maximumValues.health"));}
-                if (plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "health")) > plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxHealth"))) {plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxHealth"), plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxHealth")));}
                 if (plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "level")) > plugin.getConfig().getInt("levelLimit") && plugin.getConfig().getInt("levelLimit") != 0) {plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "level"), plugin.getConfig().getInt("levelLimit"));}
             }
         }.runTaskTimerAsynchronously(plugin, 5L, 5L);
