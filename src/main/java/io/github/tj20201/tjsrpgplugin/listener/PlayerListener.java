@@ -42,6 +42,9 @@ public class PlayerListener implements Listener {
                     event.getPlayer().spigot().sendMessage(ChatMessageType.CHAT, new TextComponent(plugin.prefix+"You levelled up to level "+newLevel));
                     int oldRequiredEXP = plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "totEXP"));
                     plugin.updatePlayerData(event.getPlayer(), oldRequiredEXP);
+                    if (newLevel % 50 == 0) {
+                        plugin.getServer().broadcastMessage(plugin.prefix+"&eUser &6"+event.getPlayer().getName()+"&e has reached Level &6"+newLevel+"&e!");
+                    }
                 }
                 if (plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana")) > plugin.getConfig().getInt("maximumValues.mana")) {plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana"), plugin.getConfig().getInt("maximumValues.mana"));}
                 if (plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "mana")) > plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana"))) {plugin.setPlayerData(event.getPlayer(), new NamespacedKey(plugin, "mana"), plugin.getPlayerData(event.getPlayer(), new NamespacedKey(plugin, "maxMana")));}
