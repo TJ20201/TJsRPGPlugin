@@ -56,12 +56,10 @@ public final class TJsRPGPlugin extends JavaPlugin {
     }
 
     public void fixPlayerDataNullValues(Player player) {
-        if (Objects.equals(getPlayerData(player, new NamespacedKey(this, "health")), -1)) {setPlayerData(player, new NamespacedKey(this, "health"), getConfig().get("startingValues.health"));}
         if (Objects.equals(getPlayerData(player, new NamespacedKey(this, "level")), -1)) {setPlayerData(player, new NamespacedKey(this, "level"), getConfig().get("levelStart"));}
         if (Objects.equals(getPlayerData(player, new NamespacedKey(this, "curEXP")), -1)) {setPlayerData(player, new NamespacedKey(this, "curEXP"), 0);}
         if (Objects.equals(getPlayerData(player, new NamespacedKey(this, "totEXP")), -1)) {setPlayerData(player, new NamespacedKey(this, "totEXP"), 100);}
         if (Objects.equals(getPlayerData(player, new NamespacedKey(this, "mana")), -1)) {setPlayerData(player, new NamespacedKey(this, "mana"), getConfig().get("startingValues.mana"));}
-        if (Objects.equals(getPlayerData(player, new NamespacedKey(this, "maxHealth")), -1)) {setPlayerData(player, new NamespacedKey(this, "maxHealth"), getConfig().get("startingValues.health"));}
         if (Objects.equals(getPlayerData(player, new NamespacedKey(this, "maxMana")), -1)) {setPlayerData(player, new NamespacedKey(this, "maxMana"), getConfig().get("startingValues.mana"));}
     }
 
@@ -83,7 +81,7 @@ public final class TJsRPGPlugin extends JavaPlugin {
             ItemStack Item = new ItemStack(ItemMaterials[Iteration]);
             ItemMeta ItemMeta = Item.getItemMeta();
             assert ItemMeta != null;
-            ItemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&f"+ItemColours[Iteration]+ItemModifiers[Iteration][new Random().nextInt(ItemModifiers[Iteration].length-1)]+" "+ItemName));
+            ItemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&f"+ItemColours[Iteration]+ItemModifiers[Iteration][new Random().nextInt(ItemModifiers[Iteration].length)]+" "+ItemName));
             ArrayList<String> ColouredLore = new ArrayList<>();
             for (String LoreEntry : ItemDescriptions[Iteration]) {ColouredLore.add(ChatColor.translateAlternateColorCodes('&', LoreEntry));}
             ItemMeta.setLore(ColouredLore);
