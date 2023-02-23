@@ -1,0 +1,5 @@
+# This file contains basic player data for TJ's RPG Plugin. They are saved in UUID format,
+# however you can edit these however you like. Please note that some variables such as maxMana
+# will automatically change themselves based on the player's level, and some such as mana will limit
+# themselves to their corresponding maximum variable. This file can not be changed whilst the
+# server is running.
