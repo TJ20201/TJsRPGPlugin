@@ -1,6 +1,7 @@
 package io.github.tj20201.tjsrpgplugin.listener;
 
 import io.github.tj20201.tjsrpgplugin.TJsRPGPlugin;
+import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -14,17 +15,19 @@ public class EntityListener implements Listener {
     @EventHandler
     public void onEntityDeath(EntityDeathEvent event) {
         TJsRPGPlugin plugin = JavaPlugin.getPlugin(TJsRPGPlugin.class);
-        if (event.getDroppedExp() != 0) {
-            ItemStack EXPOrb = new ItemStack(plugin.EXPOrbMaterial);
-            ItemMeta meta = EXPOrb.getItemMeta();
-            assert meta != null;
-            meta.setDisplayName(plugin.EXPOrbName);
-            meta.setLore(List.of(String.valueOf(event.getDroppedExp())));
-            EXPOrb.setItemMeta(meta);
-            event.getEntity().getWorld().dropItem(event.getEntity().getLocation(), EXPOrb);
-        }
-        if (new Random().nextInt(9)+1 == 5) { // 1/10 chance for an item to spawn
-            event.getEntity().getWorld().dropItem(event.getEntity().getLocation(), plugin.getCustomItems()[new Random().nextInt(plugin.getCustomItems().length)]);
+        if (event.getEntity().getType() != EntityType.PLAYER) {
+            if (event.getDroppedExp() != 0) {
+                ItemStack EXPOrb = new ItemStack(plugin.EXPOrbMaterial);
+                ItemMeta meta = EXPOrb.getItemMeta();
+                assert meta != null;
+                meta.setDisplayName(plugin.EXPOrbName);
+                meta.setLore(List.of(String.valueOf(event.getDroppedExp())));
+                EXPOrb.setItemMeta(meta);
+                event.getEntity().getWorld().dropItem(event.getEntity().getLocation(), EXPOrb);
+            }
+            if (new Random().nextInt(9) + 1 == 5) { // 1/10 chance for an item to spawn
+                event.getEntity().getWorld().dropItem(event.getEntity().getLocation(), plugin.getCustomItems()[new Random().nextInt(plugin.getCustomItems().length)]);
+            }
         }
     }
 }
