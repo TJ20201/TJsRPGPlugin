@@ -36,6 +36,8 @@ public final class TJsRPGPlugin extends JavaPlugin {
     private File playersDataFile;
     private FileConfiguration playersData;
 
+    public ItemStack SpellWandItem;
+
     @Override
     public void onEnable() {
         this.saveDefaultConfig();
@@ -48,6 +50,15 @@ public final class TJsRPGPlugin extends JavaPlugin {
                 throw new RuntimeException(e);
             }
         }
+
+        SpellWandItem = new ItemStack(Material.STICK);
+        ItemMeta SpellWandItemMeta = SpellWandItem.getItemMeta();
+        assert SpellWandItemMeta != null;
+        SpellWandItemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&eSpell Wand"));
+        SpellWandItemMeta.setLore(Arrays.asList("", UUID.randomUUID().toString().replace("-", "")));
+        SpellWandItem.setItemMeta(SpellWandItemMeta);
+        SpellWandItem.setAmount(1);
+
         Objects.requireNonNull(this.getCommand("tjsrpgplugin")).setExecutor(new TJsRPGPluginCommand());
         Objects.requireNonNull(this.getCommand("tjsrpgplugin")).setTabCompleter(new TJsRPGPluginCommand());
                 String[] version = getDescription().getVersion().split("\\.");

@@ -21,6 +21,13 @@ public class TJsRPGPluginCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(plugin.prefix+"TJ's RPG Plugin is a plugin that adds common RPG features into Minecraft without the use of mods.");
             return true;
         }
+        if (Objects.equals(args[0], "spellwand")) {
+            sender.sendMessage(plugin.prefix+"Giving you a new Spell Wand...");
+            Player senderAsPlayer = sender.getServer().getPlayer(sender.getName());assert senderAsPlayer != null;
+            senderAsPlayer.getInventory().addItem(plugin.SpellWandItem);
+            sender.sendMessage(plugin.prefix+"Successfully gave you a new Spell Wand.");
+            return true;
+        }
         if (Objects.equals(args[0], "admin")) {
             if (sender.hasPermission("tjsrpgplugin.admin")) {
                 if (Objects.equals(args[1], "level")) {
@@ -135,6 +142,7 @@ public class TJsRPGPluginCommand implements CommandExecutor, TabCompleter {
         if (args.length == 1) {
             if (sender.hasPermission("tjsrpgplugin.admin")) commands.add("admin");
             commands.add("help");
+            commands.add("spellwand");
             StringUtil.copyPartialMatches(args[0], commands, completions);
         } else if (args.length == 2) {
             if (sender.hasPermission("tjsrpgplugin.admin")) {
