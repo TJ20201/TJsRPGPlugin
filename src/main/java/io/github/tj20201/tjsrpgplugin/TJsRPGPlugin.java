@@ -55,7 +55,7 @@ public final class TJsRPGPlugin extends JavaPlugin {
         ItemMeta SpellWandItemMeta = SpellWandItem.getItemMeta();
         assert SpellWandItemMeta != null;
         SpellWandItemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&eSpell Wand"));
-        SpellWandItemMeta.setLore(Arrays.asList("", UUID.randomUUID().toString().replace("-", "")));
+        SpellWandItemMeta.setLore(Arrays.asList(ChatColor.translateAlternateColorCodes('&', "&7Swap Hands whilst holding to use"), "", UUID.randomUUID().toString().replace("-", "")));
         SpellWandItem.setItemMeta(SpellWandItemMeta);
         SpellWandItem.setAmount(1);
 
@@ -113,6 +113,26 @@ public final class TJsRPGPlugin extends JavaPlugin {
         // Plugin shutdown logic
     }
 
+    private Object[][] addSpell(Object[] fSpell, Object[][] foundSpells) {
+        ArrayList<Object[]> newFoundSpells = new ArrayList<>(Arrays.asList(foundSpells));
+        newFoundSpells.add(fSpell);
+        foundSpells = newFoundSpells.toArray(new Object[0][]);
+        return foundSpells;
+    }
+
+    public Object[][] getSpellsForLevel(int level, boolean levelSpecific) {
+        // Spells in format of {String name, String element, Integer level, Material displayItem}
+        Object[][] spells = {
+                {ChatColor.translateAlternateColorCodes('&', "&cFireball&7"), "Fire", 1, Material.FIRE_CHARGE}
+        };
+        Object[][] foundSpells = new Object[0][];
+        for (Object[] spell : spells) {
+            if ((int) spell[2] == level) {foundSpells = addSpell(spell, foundSpells);}
+            if ((int) spell[2] < level && !levelSpecific) {foundSpells = addSpell(spell, foundSpells);}
+        }
+        return foundSpells;
+    }
+
     public FileConfiguration getPlayersData() {
         return this.playersData;
     }
@@ -151,11 +171,14 @@ public final class TJsRPGPlugin extends JavaPlugin {
     }
 
     public ItemStack[] getCustomItems() {
-        String[] ItemNames = {"Mana Potion"};
-        String[] ItemColours = {"&e"};
-        Material[] ItemMaterials = {Material.POTION};
-        String[][] ItemModifiers = {{"Small", "Normal", "Large"}};
-        String[][] ItemDescriptions = {{"&7Restores Mana", "&7", "&7Small: 10 Mana", "&7Normal: 25 Mana", "&7Large: 50 Mana"}};
+        String[] ItemNames = {"Mana Potion", "Health Potion"};
+        String[] ItemColours = {"&e", "&e"};
+        Material[] ItemMaterials = {Material.POTION, Material.POTION,};
+        String[][] ItemModifiers = {{"Small", "Normal", "Large"},{"Small", "Normal", "Large"}};
+        String[][] ItemDescriptions = {
+                {"&7Restores Mana", "&7", "&7Small: 10 Mana", "&7Normal: 25 Mana", "&7Large: 50 Mana"},
+                {"&7Restores Health", "&7", "&7Small: 2 Health", "&7Normal: 4 Health", "&7Large: 8 Health"}
+        };
         int Iteration = 0;
         ItemStack[] Items = {};
         for (String ItemName : ItemNames) {

@@ -4,16 +4,24 @@ import io.github.tj20201.tjsrpgplugin.TJsRPGPlugin;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,6 +49,14 @@ public class PlayerListener implements Listener {
                     event.getPlayer().spigot().sendMessage(ChatMessageType.CHAT, new TextComponent(plugin.prefix+"You levelled up to level "+newLevel));
                     int oldRequiredEXP = plugin.getPlayerData(event.getPlayer(), "totEXP");
                     plugin.updatePlayerData(event.getPlayer(), oldRequiredEXP);
+                    Object[][] unlockedSpells = plugin.getSpellsForLevel(newLevel, true);
+                    if (unlockedSpells.length != 0) {
+                        ArrayList<String> ulSpells = new ArrayList<>();
+                        for (Object[] spell : unlockedSpells) {
+                            ulSpells.add((String) spell[0]);
+                        }
+                        event.getPlayer().spigot().sendMessage(ChatMessageType.CHAT, new TextComponent(plugin.prefix+"You unlocked the following spells: "+ulSpells));
+                    }
                     if (newLevel % 50 == 0) {
                         plugin.getServer().broadcastMessage(plugin.prefix+ChatColor.translateAlternateColorCodes('&', "&eUser &6"+event.getPlayer().getName()+"&e has reached Level &6"+newLevel+"&e!"));
                         plugin.dropRandomReward(event.getPlayer().getLocation(), event.getPlayer().getWorld());
@@ -50,6 +66,7 @@ public class PlayerListener implements Listener {
                 if (plugin.getPlayerData(event.getPlayer(), "maxMana") > plugin.getConfig().getInt("maximumValues.mana")) {plugin.setPlayerData(event.getPlayer(), "maxMana", plugin.getConfig().getInt("maximumValues.mana"));}
                 if (plugin.getPlayerData(event.getPlayer(), "mana") > plugin.getPlayerData(event.getPlayer(), "maxMana")) {plugin.setPlayerData(event.getPlayer(), "mana", plugin.getPlayerData(event.getPlayer(), "maxMana"));}
                 if (plugin.getPlayerData(event.getPlayer(), "level") > plugin.getConfig().getInt("levelLimit") && plugin.getConfig().getInt("levelLimit") != 0) {plugin.setPlayerData(event.getPlayer(), "level", plugin.getConfig().getInt("levelLimit"));}
+                // TODO: Check for items with GUI LOCK as the last line of their lore and then remove them from the inventory
             }
         }.runTaskTimer(plugin, 5L, 5L);
     }
@@ -98,5 +115,51 @@ public class PlayerListener implements Listener {
             if (itemName.contains(colourYellow+"Normal")) {plugin.setPlayerData(event.getPlayer(), "mana", plugin.getPlayerData(event.getPlayer(), "mana")+25);}
             if (itemName.contains(colourYellow+"Large")) {plugin.setPlayerData(event.getPlayer(), "mana", plugin.getPlayerData(event.getPlayer(), "mana")+50);}
         }
+        if (itemName.endsWith("Health Potion") && itemLore.get(0).endsWith("Restores Health")) {
+            if (itemName.contains(colourYellow+"Small")) {event.getPlayer().setHealth(event.getPlayer().getHealth()+4);}
+            if (itemName.contains(colourYellow+"Normal")) {event.getPlayer().setHealth(event.getPlayer().getHealth()+8);}
+            if (itemName.contains(colourYellow+"Large")) {event.getPlayer().setHealth(event.getPlayer().getHealth()+16);}
+        }
+    }
+
+    @EventHandler
+    public void onPlayerSwapHands(PlayerSwapHandItemsEvent event) {
+        TJsRPGPlugin plugin = JavaPlugin.getPlugin(TJsRPGPlugin.class);
+        event.setCancelled(true);
+        ItemMeta eventItemMeta = Objects.requireNonNull(event.getPlayer().getInventory().getItemInMainHand()).getItemMeta();
+        assert eventItemMeta != null;
+        String itemName = eventItemMeta.getDisplayName();
+        if (itemName.equals(Objects.requireNonNull(plugin.SpellWandItem.getItemMeta()).getDisplayName())) {
+            Inventory gui = plugin.getServer().createInventory(null, InventoryType.CHEST);
+            Object[][] playerSpells = plugin.getSpellsForLevel(plugin.getPlayerData(event.getPlayer(), "level"), false);
+            int guiSlot = 0;
+            while (gui.firstEmpty() != -1) {
+                ItemStack blankItem = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+                ItemMeta blankItemMeta = blankItem.getItemMeta();
+                assert blankItemMeta != null;
+                blankItemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&cLocked"));
+                blankItemMeta.setLore(Arrays.asList(ChatColor.translateAlternateColorCodes('&', "&7Unlock by levelling up"), "", "GUI LOCK"));
+                blankItem.setItemMeta(blankItemMeta);
+                gui.setItem(guiSlot, blankItem);
+                guiSlot += 1;
+            }
+            guiSlot = 0;
+            for (Object[] playerSpell : playerSpells) {
+                ItemStack displayItem = new ItemStack((Material) playerSpell[3]);
+                ItemMeta displayItemMeta = displayItem.getItemMeta();
+                assert displayItemMeta != null;
+                displayItemMeta.setDisplayName(playerSpell[0]+" ("+playerSpell[1]+")");
+                displayItemMeta.setLore(Arrays.asList("", "GUI LOCK"));
+                displayItem.setItemMeta(displayItemMeta);
+                gui.setItem(guiSlot, displayItem);
+                guiSlot += 1;
+            }
+            event.getPlayer().openInventory(gui);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerInteractContainerItem(InventoryClickEvent event) {
+        // TODO: Check if item is a spell item (see onPlayerSwapHands#ifNameSpellWand.gui)
     }
 }
