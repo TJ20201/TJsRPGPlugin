@@ -5,8 +5,11 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Fireball;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -169,7 +172,7 @@ public class PlayerListener implements Listener {
                 ItemMeta displayItemMeta = displayItem.getItemMeta();
                 assert displayItemMeta != null;
                 displayItemMeta.setDisplayName(playerSpell[0]+" ("+playerSpell[1]+")");
-                displayItemMeta.setLore(Arrays.asList("", "GUI LOCK"));
+                displayItemMeta.setLore(Arrays.asList(ChatColor.translateAlternateColorCodes('&', "&7Mana Cost: "+playerSpell[4]), "", "SPELL ITEM", "GUI LOCK"));
                 displayItem.setItemMeta(displayItemMeta);
                 gui.setItem(guiSlot, displayItem);
                 guiSlot += 1;
@@ -180,6 +183,32 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onPlayerInteractContainerItem(InventoryClickEvent event) {
-        // TODO: Check if item is a spell item (see onPlayerSwapHands#ifNameSpellWand.gui)
+        TJsRPGPlugin plugin = JavaPlugin.getPlugin(TJsRPGPlugin.class);
+        ItemStack eventItem = event.getCurrentItem();
+        HumanEntity eventEntity = event.getWhoClicked();
+        Player eventPlayer = eventEntity.getServer().getPlayerExact(eventEntity.getName());
+        if (eventItem != null) {
+            ItemMeta eventItemMeta = eventItem.getItemMeta();
+            if (eventItemMeta != null && eventItemMeta.hasLore()) {
+                List<String> eventItemLore = eventItemMeta.getLore();
+                assert eventItemLore != null;
+                if (eventItemLore.contains("SPELL ITEM")) {
+                    eventEntity.getOpenInventory().close();
+                    int spellManaCost = Integer.parseInt(eventItemLore.get(0).split(": ")[1]);
+                    assert eventPlayer != null;
+                    plugin.setPlayerData(eventPlayer, "mana", plugin.getPlayerData(eventPlayer, "mana")-spellManaCost);
+                    String spellName = ChatColor.stripColor(eventItemMeta.getDisplayName().split(" \\(")[0]).toLowerCase();
+                    if (spellName.equals("fireball")) {
+                        Fireball fireball = eventPlayer.getWorld().spawn(eventPlayer.getEyeLocation(), Fireball.class);
+                        fireball.setYield(0);
+                        fireball.setCustomName(eventPlayer.getName()+"'s Fireball");
+                        fireball.setVelocity(eventPlayer.getLocation().getDirection());
+                        new BukkitRunnable() {int ticks = 0;@Override public void run() {if (!fireball.isDead()) {fireball.getWorld().spawnParticle(Particle.FLAME, fireball.getLocation(), 1);if (ticks >= 80) {fireball.remove();}} else {cancel();}ticks += 1;}}.runTaskTimer(plugin, 0L, 1L);
+                    }
+                    else {return;}
+                    eventEntity.sendMessage(plugin.prefix+ChatColor.translateAlternateColorCodes('&', "You cast &9"+spellName+" &7for &9"+spellManaCost+"&7 mana."));
+                }
+            }
+        }
     }
 }

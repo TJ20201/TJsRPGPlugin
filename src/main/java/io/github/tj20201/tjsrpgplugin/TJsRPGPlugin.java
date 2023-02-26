@@ -121,9 +121,9 @@ public final class TJsRPGPlugin extends JavaPlugin {
     }
 
     public Object[][] getSpellsForLevel(int level, boolean levelSpecific) {
-        // Spells in format of {String name, String element, Integer level, Material displayItem}
+        // Spells in format of {String name, String element, Integer level, Material displayItem, Integer manaCost}
         Object[][] spells = {
-                {ChatColor.translateAlternateColorCodes('&', "&cFireball&7"), "Fire", 1, Material.FIRE_CHARGE}
+                {ChatColor.translateAlternateColorCodes('&', "&cFireball&7"), "Fire", 1, Material.FIRE_CHARGE, 3}
         };
         Object[][] foundSpells = new Object[0][];
         for (Object[] spell : spells) {
