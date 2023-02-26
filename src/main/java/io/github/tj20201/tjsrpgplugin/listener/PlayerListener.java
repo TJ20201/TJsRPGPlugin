@@ -1,6 +1,7 @@
 package io.github.tj20201.tjsrpgplugin.listener;
 
 import io.github.tj20201.tjsrpgplugin.TJsRPGPlugin;
+import io.github.tj20201.tjsrpgplugin.menu.MenuGUI;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -153,31 +154,27 @@ public class PlayerListener implements Listener {
         assert eventItemMeta != null;
         String itemName = eventItemMeta.getDisplayName();
         if (itemName.equals(Objects.requireNonNull(plugin.SpellWandItem.getItemMeta()).getDisplayName())) {
-            Inventory gui = plugin.getServer().createInventory(null, 9, "Spells");
+            MenuGUI menu = new MenuGUI("Spells", 1);
             Object[][] playerSpells = plugin.getSpellsForLevel(plugin.getPlayerData(event.getPlayer(), "level"), false);
+            ItemStack blankItem = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+            ItemMeta blankItemMeta = blankItem.getItemMeta();
+            assert blankItemMeta != null;
+            blankItemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&cLocked"));
+            blankItemMeta.setLore(Arrays.asList(ChatColor.translateAlternateColorCodes('&', "&7Unlock by levelling up"), ""));
+            blankItem.setItemMeta(blankItemMeta);
+            menu.fillWithItem(blankItem);
             int guiSlot = 0;
-            while (gui.firstEmpty() != -1) {
-                ItemStack blankItem = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
-                ItemMeta blankItemMeta = blankItem.getItemMeta();
-                assert blankItemMeta != null;
-                blankItemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&cLocked"));
-                blankItemMeta.setLore(Arrays.asList(ChatColor.translateAlternateColorCodes('&', "&7Unlock by levelling up"), "", "GUI LOCK"));
-                blankItem.setItemMeta(blankItemMeta);
-                gui.setItem(guiSlot, blankItem);
-                guiSlot += 1;
-            }
-            guiSlot = 0;
             for (Object[] playerSpell : playerSpells) {
                 ItemStack displayItem = new ItemStack((Material) playerSpell[3]);
                 ItemMeta displayItemMeta = displayItem.getItemMeta();
                 assert displayItemMeta != null;
                 displayItemMeta.setDisplayName(playerSpell[0]+" ("+playerSpell[1]+")");
-                displayItemMeta.setLore(Arrays.asList(ChatColor.translateAlternateColorCodes('&', "&7Mana Cost: "+playerSpell[4]), "", "SPELL ITEM", "GUI LOCK"));
+                displayItemMeta.setLore(Arrays.asList(ChatColor.translateAlternateColorCodes('&', "&7&o")+playerSpell[5], ChatColor.translateAlternateColorCodes('&', "&7Mana Cost: "+playerSpell[4]), "", "SPELL ITEM"));
                 displayItem.setItemMeta(displayItemMeta);
-                gui.setItem(guiSlot, displayItem);
+                menu.setItem(guiSlot, displayItem);
                 guiSlot += 1;
             }
-            event.getPlayer().openInventory(gui);
+            menu.showGUI(event.getPlayer());
         }
     }
 
@@ -194,7 +191,7 @@ public class PlayerListener implements Listener {
                 assert eventItemLore != null;
                 if (eventItemLore.contains("SPELL ITEM")) {
                     eventEntity.getOpenInventory().close();
-                    int spellManaCost = Integer.parseInt(eventItemLore.get(0).split(": ")[1]);
+                    int spellManaCost = Integer.parseInt(eventItemLore.get(1).split(": ")[1]);
                     String spellName = ChatColor.stripColor(eventItemMeta.getDisplayName().split(" \\(")[0]);
                     assert eventPlayer != null;
                     if (plugin.getPlayerData(eventPlayer, "mana") >= spellManaCost || eventPlayer.getGameMode() == GameMode.CREATIVE) {

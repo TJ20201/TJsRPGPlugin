@@ -12,6 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.*;
 
 public class EntityListener implements Listener {
+
     @EventHandler
     public void onEntityDeath(EntityDeathEvent event) {
         TJsRPGPlugin plugin = JavaPlugin.getPlugin(TJsRPGPlugin.class);
