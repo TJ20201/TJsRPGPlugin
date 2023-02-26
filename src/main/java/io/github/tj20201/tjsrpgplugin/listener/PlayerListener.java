@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
 
 public class PlayerListener implements Listener {
     @EventHandler
@@ -34,41 +35,60 @@ public class PlayerListener implements Listener {
             event.setJoinMessage(ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(config.getString("joinMessage")).replace("{player}", event.getPlayer().getName())));
         }
         plugin.fixPlayerDataNullValues(event.getPlayer());
-        new BukkitRunnable() {
+        try {
+            new BukkitRunnable() {
 
-            @Override
-            public void run() {
-                if (!event.getPlayer().isOnline()) cancel();
-                event.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(Objects.requireNonNull(config.getString("actionBarFormat"))
-                        .replace("{mana}", plugin.getPlayerData(event.getPlayer(), "mana")+"/"+plugin.getPlayerData(event.getPlayer(), "maxMana"))
-                        .replace("{level}", plugin.getPlayerData(event.getPlayer(), "level")+" ("+plugin.getPlayerData(event.getPlayer(), "curEXP")+"/"+plugin.getPlayerData(event.getPlayer(), "totEXP")+")")
-                        ))));
-                if (plugin.getPlayerData(event.getPlayer(), "curEXP") >= plugin.getPlayerData(event.getPlayer(), "totEXP")) {
-                    int newLevel = plugin.getPlayerData(event.getPlayer(), "level")+1;
-                    plugin.setPlayerData(event.getPlayer(), "level", newLevel);
-                    event.getPlayer().spigot().sendMessage(ChatMessageType.CHAT, new TextComponent(plugin.prefix+"You levelled up to level "+newLevel));
-                    int oldRequiredEXP = plugin.getPlayerData(event.getPlayer(), "totEXP");
-                    plugin.updatePlayerData(event.getPlayer(), oldRequiredEXP);
-                    Object[][] unlockedSpells = plugin.getSpellsForLevel(newLevel, true);
-                    if (unlockedSpells.length != 0) {
-                        ArrayList<String> ulSpells = new ArrayList<>();
-                        for (Object[] spell : unlockedSpells) {
-                            ulSpells.add((String) spell[0]);
+                @Override
+                public void run() {
+                    if (!event.getPlayer().isOnline()) cancel();
+                    event.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(Objects.requireNonNull(config.getString("actionBarFormat"))
+                            .replace("{mana}", plugin.getPlayerData(event.getPlayer(), "mana")+"/"+plugin.getPlayerData(event.getPlayer(), "maxMana"))
+                            .replace("{level}", plugin.getPlayerData(event.getPlayer(), "level")+" ("+plugin.getPlayerData(event.getPlayer(), "curEXP")+"/"+plugin.getPlayerData(event.getPlayer(), "totEXP")+")")
+                            ))));
+                    if (plugin.getPlayerData(event.getPlayer(), "curEXP") >= plugin.getPlayerData(event.getPlayer(), "totEXP")) {
+                        int newLevel = plugin.getPlayerData(event.getPlayer(), "level")+1;
+                        plugin.setPlayerData(event.getPlayer(), "level", newLevel);
+                        event.getPlayer().spigot().sendMessage(ChatMessageType.CHAT, new TextComponent(plugin.prefix+"You levelled up to level "+newLevel));
+                        int oldRequiredEXP = plugin.getPlayerData(event.getPlayer(), "totEXP");
+                        plugin.updatePlayerData(event.getPlayer(), oldRequiredEXP);
+                        Object[][] unlockedSpells = plugin.getSpellsForLevel(newLevel, true);
+                        if (unlockedSpells.length != 0) {
+                            ArrayList<String> ulSpells = new ArrayList<>();
+                            for (Object[] spell : unlockedSpells) {
+                                ulSpells.add((String) spell[0]);
+                            }
+                            event.getPlayer().spigot().sendMessage(ChatMessageType.CHAT, new TextComponent(plugin.prefix+"You unlocked the following spells: "+ulSpells));
                         }
-                        event.getPlayer().spigot().sendMessage(ChatMessageType.CHAT, new TextComponent(plugin.prefix+"You unlocked the following spells: "+ulSpells));
+                        if (newLevel % 50 == 0) {
+                            plugin.getServer().broadcastMessage(plugin.prefix+ChatColor.translateAlternateColorCodes('&', "&eUser &6"+event.getPlayer().getName()+"&e has reached Level &6"+newLevel+"&e!"));
+                            plugin.dropRandomReward(event.getPlayer().getLocation(), event.getPlayer().getWorld());
+                        }
                     }
-                    if (newLevel % 50 == 0) {
-                        plugin.getServer().broadcastMessage(plugin.prefix+ChatColor.translateAlternateColorCodes('&', "&eUser &6"+event.getPlayer().getName()+"&e has reached Level &6"+newLevel+"&e!"));
-                        plugin.dropRandomReward(event.getPlayer().getLocation(), event.getPlayer().getWorld());
+                    plugin.setPlayerData(event.getPlayer(), "maxMana", plugin.getConfig().getInt("startingValues.mana")+(15*plugin.getPlayerData(event.getPlayer(), "level")));
+                    if (plugin.getPlayerData(event.getPlayer(), "maxMana") > plugin.getConfig().getInt("maximumValues.mana")) {plugin.setPlayerData(event.getPlayer(), "maxMana", plugin.getConfig().getInt("maximumValues.mana"));}
+                    if (plugin.getPlayerData(event.getPlayer(), "mana") > plugin.getPlayerData(event.getPlayer(), "maxMana")) {plugin.setPlayerData(event.getPlayer(), "mana", plugin.getPlayerData(event.getPlayer(), "maxMana"));}
+                    if (plugin.getPlayerData(event.getPlayer(), "level") > plugin.getConfig().getInt("levelLimit") && plugin.getConfig().getInt("levelLimit") != 0) {plugin.setPlayerData(event.getPlayer(), "level", plugin.getConfig().getInt("levelLimit"));}
+                    Inventory inventory = event.getPlayer().getInventory();
+                    for (ItemStack slotItem : inventory.getContents()) {
+                        if (slotItem != null) {
+                            ItemMeta slotItemMeta = slotItem.getItemMeta();
+                            assert slotItemMeta != null;
+                            List<String> slotItemLore = slotItemMeta.getLore();
+                            if (slotItemLore != null) {
+                                for (String lore : slotItemLore) {
+                                    if (lore.toLowerCase().contains("gui lock")) {
+                                        inventory.remove(slotItem);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
-                plugin.setPlayerData(event.getPlayer(), "maxMana", plugin.getConfig().getInt("startingValues.mana")+(15*plugin.getPlayerData(event.getPlayer(), "level")));
-                if (plugin.getPlayerData(event.getPlayer(), "maxMana") > plugin.getConfig().getInt("maximumValues.mana")) {plugin.setPlayerData(event.getPlayer(), "maxMana", plugin.getConfig().getInt("maximumValues.mana"));}
-                if (plugin.getPlayerData(event.getPlayer(), "mana") > plugin.getPlayerData(event.getPlayer(), "maxMana")) {plugin.setPlayerData(event.getPlayer(), "mana", plugin.getPlayerData(event.getPlayer(), "maxMana"));}
-                if (plugin.getPlayerData(event.getPlayer(), "level") > plugin.getConfig().getInt("levelLimit") && plugin.getConfig().getInt("levelLimit") != 0) {plugin.setPlayerData(event.getPlayer(), "level", plugin.getConfig().getInt("levelLimit"));}
-                // TODO: Check for items with GUI LOCK as the last line of their lore and then remove them from the inventory
-            }
-        }.runTaskTimer(plugin, 5L, 5L);
+            }.runTaskTimer(plugin, 5L, 5L);
+        } catch (Exception exc) {
+            plugin.getLogger().log(Level.SEVERE, "An error has occurred within TJsRPGPlugin. Message: "+exc.getMessage());
+            event.getPlayer().kickPlayer("An error has occurred within TJsRPGPlugin. Please report the following to "+plugin.getDescription().getWebsite()+" with the following message: "+exc.getMessage()+" ("+exc.getCause()+")");
+        }
     }
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
