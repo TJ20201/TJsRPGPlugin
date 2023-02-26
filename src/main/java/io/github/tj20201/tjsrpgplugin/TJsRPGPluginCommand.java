@@ -1,7 +1,6 @@
 package io.github.tj20201.tjsrpgplugin;
 
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.NamespacedKey;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -22,10 +21,16 @@ public class TJsRPGPluginCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(plugin.prefix+"TJ's RPG Plugin is a plugin that adds common RPG features into Minecraft without the use of mods.");
             return true;
         }
+        if (Objects.equals(args[0], "spellwand")) {
+            sender.sendMessage(plugin.prefix+"Giving you a new Spell Wand...");
+            Player senderAsPlayer = sender.getServer().getPlayer(sender.getName());assert senderAsPlayer != null;
+            senderAsPlayer.getInventory().addItem(plugin.SpellWandItem);
+            sender.sendMessage(plugin.prefix+"Successfully gave you a new Spell Wand.");
+            return true;
+        }
         if (Objects.equals(args[0], "admin")) {
             if (sender.hasPermission("tjsrpgplugin.admin")) {
                 if (Objects.equals(args[1], "level")) {
-                    NamespacedKey keyLevel = new NamespacedKey(plugin, "level");
                     Player target;
                     if (!Objects.equals(args[3], "<self>")) {
                         try {
@@ -39,32 +44,32 @@ public class TJsRPGPluginCommand implements CommandExecutor, TabCompleter {
                     }
                     assert target != null;
                     if (Objects.equals(args[2], "set")) {
-                        int oldLevel = plugin.getPlayerData(target, keyLevel);
+                        int oldLevel = plugin.getPlayerData(target, "level");
                         int newLevel = Integer.parseInt(args[4]);
                         sender.sendMessage(plugin.prefix+ChatColor.translateAlternateColorCodes('&', "User &b" + target.getName() + "&7 has been changed from Level &b" + oldLevel + "&7 to Level &b" + newLevel + "&7."));
-                        plugin.setPlayerData(target, keyLevel, newLevel);
-                        plugin.setPlayerData(target, new NamespacedKey(plugin, "curEXP"), 0);
+                        plugin.setPlayerData(target, "level", newLevel);
+                        plugin.setPlayerData(target, "curEXP", 0);
                         plugin.updatePlayerData(target);
                         return true;
                     }
                     else if (Objects.equals(args[2], "add")) {
-                        int oldLevel = plugin.getPlayerData(target, keyLevel);
-                        int newLevel = plugin.getPlayerData(target, keyLevel)+Integer.parseInt(args[4]);
+                        int oldLevel = plugin.getPlayerData(target, "level");
+                        int newLevel = plugin.getPlayerData(target, "level")+Integer.parseInt(args[4]);
                         sender.sendMessage(plugin.prefix+ChatColor.translateAlternateColorCodes('&', "User &b" + target.getName() + "&7 has been changed from Level &b" + oldLevel + "&7 to Level &b" + newLevel + "&7."));
-                        plugin.setPlayerData(target, keyLevel, newLevel);
+                        plugin.setPlayerData(target, "level", newLevel);
                         plugin.updatePlayerData(target);
                         return true;
                     }
                     else if (Objects.equals(args[2], "remove")) {
-                        int oldLevel = plugin.getPlayerData(target, keyLevel);
-                        int newLevel = plugin.getPlayerData(target, keyLevel)-Integer.parseInt(args[4]);
+                        int oldLevel = plugin.getPlayerData(target, "level");
+                        int newLevel = plugin.getPlayerData(target, "level")-Integer.parseInt(args[4]);
                         sender.sendMessage(plugin.prefix+ChatColor.translateAlternateColorCodes('&', "User &b" + target.getName() + "&7 has been changed from Level &b" + oldLevel + "&7 to Level &b" + newLevel + "&7."));
-                        plugin.setPlayerData(target, keyLevel, newLevel);
+                        plugin.setPlayerData(target, "level", newLevel);
                         plugin.updatePlayerData(target);
                         return true;
                     }
                     else if (Objects.equals(args[2], "get")) {
-                        sender.sendMessage(plugin.prefix+ChatColor.translateAlternateColorCodes('&', "User &b"+target.getName()+"&7 is at level &b"+plugin.getPlayerData(target, keyLevel)+"&7."));
+                        sender.sendMessage(plugin.prefix+ChatColor.translateAlternateColorCodes('&', "User &b"+target.getName()+"&7 is at level &b"+plugin.getPlayerData(target, "level")+"&7."));
                         return true;
                     }
                     else {
@@ -72,8 +77,6 @@ public class TJsRPGPluginCommand implements CommandExecutor, TabCompleter {
                         return false;
                     }
                 } else if (Objects.equals(args[1], "mana")) {
-                    NamespacedKey keyMana = new NamespacedKey(plugin, "mana");
-                    NamespacedKey keyMMana = new NamespacedKey(plugin, "maxMana");
                     Player target;
                     if (!Objects.equals(args[3], "<self>")) {
                         try {
@@ -87,31 +90,31 @@ public class TJsRPGPluginCommand implements CommandExecutor, TabCompleter {
                     }
                     assert target != null;
                     if (Objects.equals(args[2], "set")) {
-                        int oldMana = plugin.getPlayerData(target, keyMana);
+                        int oldMana = plugin.getPlayerData(target, "mana");
                         int newMana = Integer.parseInt(args[4]);
                         sender.sendMessage(plugin.prefix+ChatColor.translateAlternateColorCodes('&', "User &b" + target.getName() + "&7 has been changed from Level &b" + oldMana + "&7 to Level &b" + newMana + "&7."));
-                        plugin.setPlayerData(target, keyMana, newMana);
+                        plugin.setPlayerData(target, "mana", newMana);
                         plugin.updatePlayerData(target);
                         return true;
                     }
                     else if (Objects.equals(args[2], "add")) {
-                        int oldMana = plugin.getPlayerData(target, keyMana);
-                        int newMana = plugin.getPlayerData(target, keyMana)+Integer.parseInt(args[4]);
+                        int oldMana = plugin.getPlayerData(target, "mana");
+                        int newMana = plugin.getPlayerData(target, "mana")+Integer.parseInt(args[4]);
                         sender.sendMessage(plugin.prefix+ChatColor.translateAlternateColorCodes('&', "User &b" + target.getName() + "&7 has been changed from Level &b" + oldMana + "&7 to Level &b" + newMana + "&7."));
-                        plugin.setPlayerData(target, keyMana, newMana);
+                        plugin.setPlayerData(target, "mana", newMana);
                         plugin.updatePlayerData(target);
                         return true;
                     }
                     else if (Objects.equals(args[2], "remove")) {
-                        int oldMana = plugin.getPlayerData(target, keyMana);
-                        int newMana = plugin.getPlayerData(target, keyMana) - Integer.parseInt(args[4]);
+                        int oldMana = plugin.getPlayerData(target, "mana");
+                        int newMana = plugin.getPlayerData(target, "mana") - Integer.parseInt(args[4]);
                         sender.sendMessage(plugin.prefix + ChatColor.translateAlternateColorCodes('&', "User &b" + target.getName() + "&7 has been changed from Level &b" + oldMana + "&7 to Level &b" + newMana + "&7."));
-                        plugin.setPlayerData(target, keyMana, newMana);
+                        plugin.setPlayerData(target, "mana", newMana);
                         plugin.updatePlayerData(target);
                         return true;
                     }
                     else if (Objects.equals(args[2], "get")) {
-                        sender.sendMessage(plugin.prefix+ChatColor.translateAlternateColorCodes('&', "User &b"+target.getName()+"&7 has &b"+plugin.getPlayerData(target, keyMana)+"/"+plugin.getPlayerData(target, keyMMana)+"&7 mana."));
+                        sender.sendMessage(plugin.prefix+ChatColor.translateAlternateColorCodes('&', "User &b"+target.getName()+"&7 has &b"+plugin.getPlayerData(target, "mana")+"/"+plugin.getPlayerData(target, "maxMana")+"&7 mana."));
                         return true;
                     }
                     else {
@@ -139,6 +142,7 @@ public class TJsRPGPluginCommand implements CommandExecutor, TabCompleter {
         if (args.length == 1) {
             if (sender.hasPermission("tjsrpgplugin.admin")) commands.add("admin");
             commands.add("help");
+            commands.add("spellwand");
             StringUtil.copyPartialMatches(args[0], commands, completions);
         } else if (args.length == 2) {
             if (sender.hasPermission("tjsrpgplugin.admin")) {

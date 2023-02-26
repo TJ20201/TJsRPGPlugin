@@ -3,18 +3,26 @@ package io.github.tj20201.tjsrpgplugin;
 import io.github.tj20201.tjsrpgplugin.listener.EntityListener;
 import io.github.tj20201.tjsrpgplugin.listener.PlayerListener;
 import org.bukkit.*;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.StringUtil;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.util.*;
+import java.util.logging.Level;
 
 public final class TJsRPGPlugin extends JavaPlugin {
 
@@ -24,9 +32,16 @@ public final class TJsRPGPlugin extends JavaPlugin {
     public String prefix = ChatColor.translateAlternateColorCodes('&', "&b[&9TJsRPGPlugin&b] &7");
 
     public List<Listener> listeners = List.of(new EntityListener(), new PlayerListener());
+
+    private File playersDataFile;
+    private FileConfiguration playersData;
+
+    public ItemStack SpellWandItem;
+
     @Override
     public void onEnable() {
         this.saveDefaultConfig();
+        createPlayersData();
         for (Listener listener : listeners) {
             try {
                 getServer().getPluginManager().registerEvents(listener.getClass().getDeclaredConstructor().newInstance(), this);
@@ -35,8 +50,62 @@ public final class TJsRPGPlugin extends JavaPlugin {
                 throw new RuntimeException(e);
             }
         }
+
+        SpellWandItem = new ItemStack(Material.STICK);
+        ItemMeta SpellWandItemMeta = SpellWandItem.getItemMeta();
+        assert SpellWandItemMeta != null;
+        SpellWandItemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&eSpell Wand"));
+        SpellWandItemMeta.setLore(Arrays.asList(ChatColor.translateAlternateColorCodes('&', "&7Swap Hands whilst holding to use"), "", UUID.randomUUID().toString().replace("-", "")));
+        SpellWandItem.setItemMeta(SpellWandItemMeta);
+        SpellWandItem.setAmount(1);
+
         Objects.requireNonNull(this.getCommand("tjsrpgplugin")).setExecutor(new TJsRPGPluginCommand());
         Objects.requireNonNull(this.getCommand("tjsrpgplugin")).setTabCompleter(new TJsRPGPluginCommand());
+                String[] version = getDescription().getVersion().split("\\.");
+        try {
+           URL url = new URL("https://raw.githubusercontent.com/TJ20201/TJsRPGPlugin/master/build.gradle");
+           BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+           String inputLine;
+           String[] lstVersion = new String[0];
+           while ((inputLine = in.readLine()) != null) {
+               if (inputLine.startsWith("version = ")) {
+                   lstVersion = inputLine.split(" = ")[1].replace("'", "").split("\\.");
+                   break;
+               }
+           }
+           in.close();
+           assert lstVersion.length != 0;
+           // Lower version checking
+           if (Integer.parseInt(version[2]) < Integer.parseInt(lstVersion[2])) {
+               getLogger().log(Level.WARNING, "Running on a lower patch version than the latest stable release. Updating is not necessary, but recommended.");
+           } else if (Integer.parseInt(version[1]) < Integer.parseInt(lstVersion[1])) {
+               getLogger().log(Level.WARNING, "Running on a lower minor version than the latest stable release. Please update to the latest version at "+getDescription().getWebsite()+".");
+           } else if (Integer.parseInt(version[0]) < Integer.parseInt(lstVersion[0])) {
+               getLogger().log(Level.WARNING, "Running on a lower major version than the latest stable release. Please update to the latest version at "+getDescription().getWebsite()+".");
+           }
+           // Higher version checking
+           if (Integer.parseInt(version[2]) > Integer.parseInt(lstVersion[2]) || Integer.parseInt(version[1]) > Integer.parseInt(lstVersion[1]) || Integer.parseInt(version[0]) > Integer.parseInt(lstVersion[0])) {
+               getLogger().log(Level.WARNING, "Running on an unstable version of TJsRPGPlugin. Report any errors at "+getDescription().getWebsite()+" with your version number.");
+           }
+        }
+        catch(IOException ex) {
+           getLogger().log(Level.WARNING, "Unable to obtain the latest version number available online.");
+        }
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    private void createPlayersData() {
+        playersDataFile = new File(getDataFolder(), "players.yml");
+        if (!playersDataFile.exists()) {
+            playersDataFile.getParentFile().mkdirs();
+            saveResource("players.yml", false);
+        }
+        playersData = new YamlConfiguration();
+        try {
+            playersData.load(playersDataFile);
+        } catch (IOException | InvalidConfigurationException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -44,21 +113,55 @@ public final class TJsRPGPlugin extends JavaPlugin {
         // Plugin shutdown logic
     }
 
-    public Integer getPlayerData(Player player, NamespacedKey key) {
-        String data = Objects.requireNonNull(player.getPersistentDataContainer().get(key, PersistentDataType.INTEGER)).toString();
-        return Integer.parseInt(data);
+    private Object[][] addSpell(Object[] fSpell, Object[][] foundSpells) {
+        ArrayList<Object[]> newFoundSpells = new ArrayList<>(Arrays.asList(foundSpells));
+        newFoundSpells.add(fSpell);
+        foundSpells = newFoundSpells.toArray(new Object[0][]);
+        return foundSpells;
     }
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public void setPlayerData(Player player, NamespacedKey key, Object value) {
-        player.getPersistentDataContainer().set(key, (PersistentDataType) PersistentDataType.INTEGER, value);
+
+    public Object[][] getSpellsForLevel(int level, boolean levelSpecific) {
+        // Spells in format of {String name, String element, Integer level, Material displayItem, Integer manaCost}
+        Object[][] spells = {
+                {ChatColor.translateAlternateColorCodes('&', "&cFireball&7"), "Fire", 1, Material.FIRE_CHARGE, 3}
+        };
+        Object[][] foundSpells = new Object[0][];
+        for (Object[] spell : spells) {
+            if ((int) spell[2] == level) {foundSpells = addSpell(spell, foundSpells);}
+            if ((int) spell[2] < level && !levelSpecific) {foundSpells = addSpell(spell, foundSpells);}
+        }
+        return foundSpells;
+    }
+
+    public FileConfiguration getPlayersData() {
+        return this.playersData;
+    }
+
+    public void savePlayersData() {
+        try {
+            getPlayersData().save(playersDataFile);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public Integer getPlayerData(Player player, String key) {
+        int ret = getPlayersData().getInt(player.getUniqueId() +"."+key);
+        savePlayersData();
+        return ret;
+    }
+    public void setPlayerData(Player player, String key, Object value) {
+        getPlayersData().set(player.getUniqueId() +"."+key, value);
+        savePlayersData();
     }
 
     public void fixPlayerDataNullValues(Player player) {
-        if (Objects.equals(getPlayerData(player, new NamespacedKey(this, "level")), -1)) {setPlayerData(player, new NamespacedKey(this, "level"), getConfig().get("levelStart"));}
-        if (Objects.equals(getPlayerData(player, new NamespacedKey(this, "curEXP")), -1)) {setPlayerData(player, new NamespacedKey(this, "curEXP"), 0);}
-        if (Objects.equals(getPlayerData(player, new NamespacedKey(this, "totEXP")), -1)) {setPlayerData(player, new NamespacedKey(this, "totEXP"), 100);}
-        if (Objects.equals(getPlayerData(player, new NamespacedKey(this, "mana")), -1)) {setPlayerData(player, new NamespacedKey(this, "mana"), getConfig().get("startingValues.mana"));}
-        if (Objects.equals(getPlayerData(player, new NamespacedKey(this, "maxMana")), -1)) {setPlayerData(player, new NamespacedKey(this, "maxMana"), getConfig().get("startingValues.mana"));}
+        if (Objects.equals(getPlayerData(player, "level"), -1)) {setPlayerData(player, "level", getConfig().get("levelStart"));}
+        if (Objects.equals(getPlayerData(player, "curEXP"), -1)) {setPlayerData(player, "curEXP", 0);}
+        if (Objects.equals(getPlayerData(player, "totEXP"), -1)) {setPlayerData(player, "totEXP", 100);}
+        if (Objects.equals(getPlayerData(player, "mana"), -1)) {setPlayerData(player, "mana", getConfig().get("startingValues.mana"));}
+        if (Objects.equals(getPlayerData(player, "maxMana"), -1)) {setPlayerData(player, "maxMana", getConfig().get("startingValues.mana"));}
     }
 
     public boolean checkItemIsEXPOrb(Item item) {
@@ -68,11 +171,14 @@ public final class TJsRPGPlugin extends JavaPlugin {
     }
 
     public ItemStack[] getCustomItems() {
-        String[] ItemNames = {"Mana Potion"};
-        String[] ItemColours = {"&e"};
-        Material[] ItemMaterials = {Material.POTION};
-        String[][] ItemModifiers = {{"Small", "Normal", "Large"}};
-        String[][] ItemDescriptions = {{"&7Restores Mana", "&7", "&7Small: 10 Mana", "&7Normal: 25 Mana", "&7Large: 50 Mana"}};
+        String[] ItemNames = {"Mana Potion", "Health Potion"};
+        String[] ItemColours = {"&e", "&e"};
+        Material[] ItemMaterials = {Material.POTION, Material.POTION,};
+        String[][] ItemModifiers = {{"Small", "Normal", "Large"},{"Small", "Normal", "Large"}};
+        String[][] ItemDescriptions = {
+                {"&7Restores Mana", "&7", "&7Small: 10 Mana", "&7Normal: 25 Mana", "&7Large: 50 Mana"},
+                {"&7Restores Health", "&7", "&7Small: 2 Health", "&7Normal: 4 Health", "&7Large: 8 Health"}
+        };
         int Iteration = 0;
         ItemStack[] Items = {};
         for (String ItemName : ItemNames) {
@@ -109,7 +215,7 @@ public final class TJsRPGPlugin extends JavaPlugin {
         Item.setAmount(SRCount);
         ItemMeta ItemMeta = Item.getItemMeta();
         assert ItemMeta != null;
-        ItemMeta.setLore(List.of(ChatColor.translateAlternateColorCodes('&', "&7Received from TJ's RPG Plugin Level Milestones"), "", UUID.randomUUID().toString().replace("-", "")));
+        ItemMeta.setLore(List.of(ChatColor.translateAlternateColorCodes('&', "&7Received from TJ's RPG Plugin Level Milestones")));
         Item.setItemMeta(ItemMeta);
         world.dropItem(location, Item);
     }
@@ -126,9 +232,9 @@ public final class TJsRPGPlugin extends JavaPlugin {
     public void updatePlayerData(Player player) {updatePlayerData(player, 0);}
     public void updatePlayerData(Player player, Integer experienceToRemove) {
 
-        this.setPlayerData(player, new NamespacedKey(this, "curEXP"), this.getPlayerData(player, new NamespacedKey(this, "curEXP"))-experienceToRemove);
-        this.setPlayerData(player, new NamespacedKey(this, "totEXP"), 100+(15*this.getPlayerData(player, new NamespacedKey(this, "level"))));
-        if (this.getPlayerData(player, new NamespacedKey(this, "mana")) > this.getPlayerData(player, new NamespacedKey(this, "maxMana"))) {this.setPlayerData(player, new NamespacedKey(this, "mana"), this.getPlayerData(player, new NamespacedKey(this, "maxMana")));}
-        if (this.getPlayerData(player, new NamespacedKey(this, "mana")) < 0) {this.setPlayerData(player, new NamespacedKey(this, "mana"), 0);}
+        this.setPlayerData(player, "curEXP", this.getPlayerData(player, "curEXP")-experienceToRemove);
+        this.setPlayerData(player, "totEXP", 100+(15*this.getPlayerData(player, "level")));
+        if (this.getPlayerData(player, "mana") > this.getPlayerData(player, "maxMana")) {this.setPlayerData(player, "mana", this.getPlayerData(player, "maxMana"));}
+        if (this.getPlayerData(player, "mana") < 0) {this.setPlayerData(player, "mana", 0);}
     }
 }
