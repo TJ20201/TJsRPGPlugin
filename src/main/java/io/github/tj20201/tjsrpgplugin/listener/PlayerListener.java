@@ -15,7 +15,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -153,7 +152,7 @@ public class PlayerListener implements Listener {
         assert eventItemMeta != null;
         String itemName = eventItemMeta.getDisplayName();
         if (itemName.equals(Objects.requireNonNull(plugin.SpellWandItem.getItemMeta()).getDisplayName())) {
-            Inventory gui = plugin.getServer().createInventory(null, InventoryType.CHEST);
+            Inventory gui = plugin.getServer().createInventory(null, 9, "Spells");
             Object[][] playerSpells = plugin.getSpellsForLevel(plugin.getPlayerData(event.getPlayer(), "level"), false);
             int guiSlot = 0;
             while (gui.firstEmpty() != -1) {
