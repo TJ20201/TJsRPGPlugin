@@ -4,6 +4,7 @@ import io.github.tj20201.tjsrpgplugin.TJsRPGPlugin;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -194,18 +195,27 @@ public class PlayerListener implements Listener {
                 if (eventItemLore.contains("SPELL ITEM")) {
                     eventEntity.getOpenInventory().close();
                     int spellManaCost = Integer.parseInt(eventItemLore.get(0).split(": ")[1]);
+                    String spellName = ChatColor.stripColor(eventItemMeta.getDisplayName().split(" \\(")[0]);
                     assert eventPlayer != null;
-                    plugin.setPlayerData(eventPlayer, "mana", plugin.getPlayerData(eventPlayer, "mana")-spellManaCost);
-                    String spellName = ChatColor.stripColor(eventItemMeta.getDisplayName().split(" \\(")[0]).toLowerCase();
-                    if (spellName.equals("fireball")) {
-                        Fireball fireball = eventPlayer.getWorld().spawn(eventPlayer.getEyeLocation(), Fireball.class);
-                        fireball.setYield(0);
-                        fireball.setCustomName(eventPlayer.getName()+"'s Fireball");
-                        fireball.setVelocity(eventPlayer.getLocation().getDirection());
-                        new BukkitRunnable() {int ticks = 0;@Override public void run() {if (!fireball.isDead()) {fireball.getWorld().spawnParticle(Particle.FLAME, fireball.getLocation(), 1);if (ticks >= 80) {fireball.remove();}} else {cancel();}ticks += 1;}}.runTaskTimer(plugin, 0L, 1L);
+                    if (plugin.getPlayerData(eventPlayer, "mana") >= spellManaCost || eventPlayer.getGameMode() == GameMode.CREATIVE) {
+                        if (eventPlayer.getGameMode() != GameMode.CREATIVE)plugin.setPlayerData(eventPlayer, "mana", plugin.getPlayerData(eventPlayer, "mana") - spellManaCost);
+                        if (spellName.equals("Fireball")) {
+                            Fireball fireball = eventPlayer.getWorld().spawn(eventPlayer.getEyeLocation(), Fireball.class);
+                            fireball.setYield(0);
+                            fireball.setCustomName(eventPlayer.getName() + "'s Fireball");
+                            fireball.setVelocity(eventPlayer.getLocation().getDirection());
+                            new BukkitRunnable() {int ticks = 0;@Override public void run() {if (!fireball.isDead()) {fireball.getWorld().spawnParticle(Particle.FLAME, fireball.getLocation(), 1);if (ticks >= 80) {fireball.remove();}} else {cancel();}ticks += 1;}}.runTaskTimer(plugin, 0L, 1L);
+                        } else {
+                            return;
+                        }
+                        if (eventPlayer.getGameMode() == GameMode.CREATIVE) {
+                            eventEntity.sendMessage(plugin.prefix + ChatColor.translateAlternateColorCodes('&', "You cast &9" + spellName + "&7."));
+                        } else {
+                            eventEntity.sendMessage(plugin.prefix + ChatColor.translateAlternateColorCodes('&', "You cast &9" + spellName + " &7for &9" + spellManaCost + "&7 mana."));
+                        }
+                    } else {
+                        eventEntity.sendMessage(plugin.prefix + ChatColor.translateAlternateColorCodes('&', "&cYou do not have enough mana to cast &4"+spellName+"&c."));
                     }
-                    else {return;}
-                    eventEntity.sendMessage(plugin.prefix+ChatColor.translateAlternateColorCodes('&', "You cast &9"+spellName+" &7for &9"+spellManaCost+"&7 mana."));
                 }
             }
         }
